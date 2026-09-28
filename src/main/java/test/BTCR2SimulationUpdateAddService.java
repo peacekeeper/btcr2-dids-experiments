@@ -18,13 +18,14 @@ public class BTCR2SimulationUpdateAddService {
         Collection<Callable<UpdateState>> callables = new ArrayList<>();
         for (int i=0; i<dids.size(); i++) {
             String did = dids.get(i);
-            Map<String, Object> resolutionOptions = didResolutionOptions.get(i);
+            Map<String, Object> resolutionOptions = didResolutionOptions.get(did);
             callables.add(() -> {
                 try {
 
                     RequestOptions requestOptions = new RequestOptions();
                     requestOptions.setClientSecretMode(Boolean.TRUE);
                     requestOptions.putAdditionalProperty("resolutionOptions", resolutionOptions);
+                    requestOptions.putAdditionalProperty("publishToIpfs", Boolean.FALSE);
 
                     DidDocument didDocument = new DidDocument();
                     didDocument.addServiceItem(randomService());
@@ -58,8 +59,8 @@ public class BTCR2SimulationUpdateAddService {
                             updateRequest = (UpdateRequest) newRequest.get();
                         }
                     }
-                } catch (RegistrationException ex) {
-                    throw new RuntimeException(ex.getMessage(), ex);
+                } catch (Exception ex) {
+                    throw new RuntimeException(did + ": " + ex.getMessage(), ex);
                 }
             });
         }

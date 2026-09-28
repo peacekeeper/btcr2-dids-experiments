@@ -29,7 +29,7 @@ public class BTCR2SimulationUpdate {
     static ClientUniRegistrar clientUniRegistrar = ClientUniRegistrar.create(BASE_URI);
     static ClientKeyInterface<?> clientKeyInterface = ClientKeyInterfaceFactory.clientKeyInterface(ClientKeyInterfaceFactory.KMSProvider.LOCAL_INMEMORY, null, null, null, null);
 
-    static ExecutorService executorService = Executors.newFixedThreadPool(THREADS);
+    static ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor();
     static JsonMapper jsonMapper = JsonMapper.builder().build();
 
     static {
@@ -40,7 +40,7 @@ public class BTCR2SimulationUpdate {
 
         // prepare input
 
-        BufferedReader bufferedReader = new BufferedReader(new FileReader("./create-out.txt"));
+        BufferedReader bufferedReader = new BufferedReader(new FileReader("./create-out.jsonl"));
         String line;
         List<String> inputDids = new ArrayList<>();
         Map<String, Map<String, Object>> inputResolutionOptions = new HashMap<>();
@@ -71,7 +71,7 @@ public class BTCR2SimulationUpdate {
 
         // write result
 
-        PrintWriter printWriter = new PrintWriter(new FileWriter("./update-out.txt"));
+        PrintWriter printWriter = new PrintWriter(new FileWriter("./update-out.jsonl"));
         for (Future<UpdateState> updateFuture : updateFutures) {
             UpdateState updateState = updateFuture.get();
             List<Map<String, Object>> didDocumentMetadataUpdates = (List<Map<String, Object>>) updateState.getDidDocumentMetadata().get("updates");

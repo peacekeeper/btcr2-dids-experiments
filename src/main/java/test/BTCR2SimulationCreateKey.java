@@ -15,7 +15,7 @@ import java.util.concurrent.Callable;
 
 public class BTCR2SimulationCreateKey {
 
-    public static Collection<Callable<CreateState>> create(ClientUniRegistrar clientUniRegistrar, ClientKeyInterface<?> clientKeyInterface, int number, String network) throws Exception {
+    public static Collection<Callable<CreateState>> create(ClientUniRegistrar clientUniRegistrar, ClientKeyInterface<?> clientKeyInterface, int number, String network, String cohort) throws Exception {
 
         Collection<Callable<CreateState>> callables = new ArrayList<>();
         for (int i=0; i<number; i++) {
@@ -26,6 +26,9 @@ public class BTCR2SimulationCreateKey {
                     RequestOptions requestOptions = new RequestOptions();
                     requestOptions.setClientSecretMode(Boolean.TRUE);
                     requestOptions.putAdditionalProperty("network", network);
+                    requestOptions.putAdditionalProperty("generateStandardBeacons", Boolean.TRUE);
+                    requestOptions.putAdditionalProperty("generateAggregateBeacon", cohort);
+                    requestOptions.putAdditionalProperty("publishToIpfs", Boolean.FALSE);
 
                     CreateRequest createRequest = new CreateRequest();
                     createRequest.setOptions(requestOptions);
@@ -53,8 +56,8 @@ public class BTCR2SimulationCreateKey {
                             createRequest = (CreateRequest) newRequest.get();
                         }
                     }
-                } catch (RegistrationException ex) {
-                    throw new RuntimeException(ex.getMessage(), ex);
+                } catch (Exception ex) {
+                    throw new RuntimeException(finalI + ": " + ex.getMessage(), ex);
                 }
             });
         }

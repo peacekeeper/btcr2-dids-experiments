@@ -10,10 +10,7 @@ import uniregistrar.openapi.model.CreateState;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.net.URI;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -30,7 +27,7 @@ public class BTCR2SimulationCreate {
     static ClientUniRegistrar clientUniRegistrar = ClientUniRegistrar.create(BASE_URI);
     static ClientKeyInterface<?> clientKeyInterface = ClientKeyInterfaceFactory.clientKeyInterface(ClientKeyInterfaceFactory.KMSProvider.LOCAL_INMEMORY, null, null, null, null);
 
-    static ExecutorService executorService = Executors.newFixedThreadPool(THREADS);
+    static ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor();
     static JsonMapper jsonMapper = JsonMapper.builder().build();
 
     static {
@@ -41,7 +38,9 @@ public class BTCR2SimulationCreate {
 
         // execute
 
-        Collection<Callable<CreateState>> createCallables = BTCR2SimulationCreateGenesis.create(clientUniRegistrar, clientKeyInterface, NUMBER, NETWORK);
+        String cohort = "cohort-" + NETWORK + "-smt-" + NUMBER + "-" + Math.abs(new Random().nextInt());
+
+        Collection<Callable<CreateState>> createCallables = BTCR2SimulationCreateGenesis.create(clientUniRegistrar, clientKeyInterface, NUMBER, NETWORK, cohort);
         Collection<Future<CreateState>> createFutures = executorService.invokeAll(createCallables);
         executorService.shutdown();
 
@@ -58,7 +57,7 @@ public class BTCR2SimulationCreate {
 
         // write result
 
-        PrintWriter printWriter = new PrintWriter(new FileWriter("./create-out.txt"));
+        PrintWriter printWriter = new PrintWriter(new FileWriter("./create-out.jsonl"));
         for (Future<CreateState> createFuture : createFutures) {
             CreateState createState = createFuture.get();
             Map<String, Object> didDocumentMetadataGenesisDocument = (Map<String, Object>) createState.getDidDocumentMetadata().get("genesisDocument");

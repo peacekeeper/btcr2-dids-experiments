@@ -62,8 +62,10 @@ public class BTCR2SimulationCreate {
             CreateState createState = createFuture.get();
             Map<String, Object> didDocumentMetadataGenesisDocument = (Map<String, Object>) createState.getDidDocumentMetadata().get("genesisDocument");
             String did = createState.getDidState().getDid();
+            Map<String, Object> sidecar = new HashMap<>();
+            sidecar.put("genesisDocument", didDocumentMetadataGenesisDocument);
             Map<String, Object> resolutionOptions = new HashMap<>();
-            resolutionOptions.put("genesisDocument", didDocumentMetadataGenesisDocument);
+            resolutionOptions.put("sidecar", sidecar);
             printWriter.println(did);
             printWriter.println(jsonMapper.writeValueAsString(resolutionOptions));
         }

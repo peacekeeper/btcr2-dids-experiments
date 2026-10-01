@@ -76,9 +76,11 @@ public class BTCR2SimulationUpdate {
             UpdateState updateState = updateFuture.get();
             List<Map<String, Object>> didDocumentMetadataUpdates = (List<Map<String, Object>>) updateState.getDidDocumentMetadata().get("updates");
             String did = updateState.getDidState().getDid();
+            Map<String, Object> sidecar = new HashMap<>();
+            sidecar.putAll(inputResolutionOptions.get(did));
+            sidecar.put("updates", didDocumentMetadataUpdates);
             Map<String, Object> resolutionOptions = new HashMap<>();
-            resolutionOptions.putAll(inputResolutionOptions.get(did));
-            resolutionOptions.put("updates", didDocumentMetadataUpdates);
+            resolutionOptions.put("sidecar", sidecar);
             printWriter.println(did);
             printWriter.println(jsonMapper.writeValueAsString(resolutionOptions));
         }

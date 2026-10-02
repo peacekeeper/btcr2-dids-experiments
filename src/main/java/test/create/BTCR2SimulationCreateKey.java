@@ -1,4 +1,4 @@
-package test;
+package test.create;
 
 import com.danubetech.kms.clientkeyinterface.ClientKeyInterface;
 import com.danubetech.kms.clientstateinterface.ClientStateInterface;

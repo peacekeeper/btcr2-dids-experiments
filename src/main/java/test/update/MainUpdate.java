@@ -1,11 +1,10 @@
-package test;
+package test.update;
 
 import com.danubetech.kms.clientkeyinterface.ClientKey;
 import com.danubetech.kms.clientkeyinterface.ClientKeyInterface;
 import com.danubetech.kms.clientkeyinterface.ClientKeyInterfaceFactory;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import uniregistrar.client.ClientUniRegistrar;
-import uniregistrar.openapi.model.CreateState;
 import uniregistrar.openapi.model.UpdateState;
 
 import java.io.BufferedReader;
@@ -19,10 +18,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-public class BTCR2SimulationUpdate {
+public class MainUpdate {
 
-    static final URI BASE_URI = URI.create("https://api.godiddy.com/1.0.0/universal-registrar");
-    static final String API_KEY = "06c9d23a-589d-46f4-90e4-bc707b0252a1";
+    static final URI BASE_URI = URI.create("https://api.dev.godiddy.com/1.0.0/universal-registrar");
+    static final String API_KEY = "c4aa5dd6-4a08-4014-8510-17eb99eddb79";
     static final String NETWORK = "mutinynet";
     static final int THREADS = 10;
 
@@ -54,7 +53,7 @@ public class BTCR2SimulationUpdate {
 
         // execute
 
-        Collection<Callable<UpdateState>> updateCallables = BTCR2SimulationUpdateAddService.update(clientUniRegistrar, clientKeyInterface, inputDids, inputResolutionOptions);
+        Collection<Callable<UpdateState>> updateCallables = BTCR2SimulationUpdateAddDWNService.update(clientUniRegistrar, clientKeyInterface, inputDids, inputResolutionOptions);
         Collection<Future<UpdateState>> updateFutures = executorService.invokeAll(updateCallables);
         executorService.shutdown();
 
@@ -66,7 +65,7 @@ public class BTCR2SimulationUpdate {
 
         for (Future<UpdateState> updateFuture : updateFutures) {
             UpdateState updateState = updateFuture.get();
-            System.out.println(updateState.getDidState().getDid() + " => " + updateState.getDidState().getState());
+            System.out.println("DONE: " + updateState.getDidState().getDid() + " => " + updateState.getDidState().getState());
         }
 
         // write result

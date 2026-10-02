@@ -1,4 +1,4 @@
-package test;
+package test.create;
 
 import com.danubetech.kms.clientkeyinterface.ClientKey;
 import com.danubetech.kms.clientkeyinterface.ClientKeyInterface;
@@ -16,12 +16,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-public class BTCR2SimulationCreate {
+public class MainCreate {
 
     static final URI BASE_URI = URI.create("https://api.dev.godiddy.com/1.0.0/universal-registrar");
     static final String API_KEY = "c4aa5dd6-4a08-4014-8510-17eb99eddb79";
     static final String NETWORK = "mutinynet";
-    static final int NUMBER = 100;
+    static final int NUMBER = 10;
     static final int THREADS = 10;
 
     static ClientUniRegistrar clientUniRegistrar = ClientUniRegistrar.create(BASE_URI);
@@ -38,9 +38,12 @@ public class BTCR2SimulationCreate {
 
         // execute
 
-        String cohort = "cohort-" + NETWORK + "-smt-" + NUMBER + "-" + Math.abs(new Random().nextInt());
+        String[] cohorts = new String[]{
+                "cohort-" + NETWORK + "-smt-" + NUMBER + "-" + Math.abs(new Random().nextInt()),
+                "cohort-" + NETWORK + "-cas-" + NUMBER + "-" + Math.abs(new Random().nextInt())
+        };
 
-        Collection<Callable<CreateState>> createCallables = BTCR2SimulationCreateGenesis.create(clientUniRegistrar, clientKeyInterface, NUMBER, NETWORK, cohort);
+        Collection<Callable<CreateState>> createCallables = BTCR2SimulationCreateGenesisWithDIDCommService.create(clientUniRegistrar, clientKeyInterface, NUMBER, NETWORK, cohorts);
         Collection<Future<CreateState>> createFutures = executorService.invokeAll(createCallables);
         executorService.shutdown();
 
@@ -52,7 +55,7 @@ public class BTCR2SimulationCreate {
 
         for (Future<CreateState> createFuture : createFutures) {
             CreateState createState = createFuture.get();
-            System.out.println(createState.getDidState().getDid() + " => " + createState.getDidState().getState());
+            System.out.println("DONE: " + createState.getDidState().getDid() + " => " + createState.getDidState().getState());
         }
 
         // write result

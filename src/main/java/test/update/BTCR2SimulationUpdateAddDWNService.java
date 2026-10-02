@@ -1,4 +1,4 @@
-package test;
+package test.update;
 
 import com.danubetech.kms.clientkeyinterface.ClientKeyInterface;
 import com.danubetech.kms.clientstateinterface.ClientStateInterface;
@@ -11,7 +11,7 @@ import uniregistrar.openapi.model.*;
 import java.util.*;
 import java.util.concurrent.Callable;
 
-public class BTCR2SimulationUpdateAddService {
+public class BTCR2SimulationUpdateAddDWNService {
 
     public static Collection<Callable<UpdateState>> update(ClientUniRegistrar clientUniRegistrar, ClientKeyInterface<?> clientKeyInterface, List<String> dids, Map<String, Map<String, Object>> didResolutionOptions) throws Exception {
 
@@ -24,11 +24,13 @@ public class BTCR2SimulationUpdateAddService {
 
                     RequestOptions requestOptions = new RequestOptions();
                     requestOptions.setClientSecretMode(Boolean.TRUE);
+                    System.out.println(resolutionOptions);
                     requestOptions.putAdditionalProperty("resolutionOptions", resolutionOptions);
+                    requestOptions.putAdditionalProperty("beaconServiceType", "SMTBeacon");
                     requestOptions.putAdditionalProperty("publishToIpfs", Boolean.FALSE);
 
                     DidDocument didDocument = new DidDocument();
-                    didDocument.addServiceItem(randomService());
+                    didDocument.addServiceItem(service());
 
                     UpdateRequest updateRequest = new UpdateRequest();
                     updateRequest.setDid(did);
@@ -67,7 +69,7 @@ public class BTCR2SimulationUpdateAddService {
         return callables;
     }
 
-    private static Map<String, Object> randomService() {
+    private static Map<String, Object> service() {
         return Map.of(
                 "id", "#dwn",
                 "type", "DecentralizedWebNode",

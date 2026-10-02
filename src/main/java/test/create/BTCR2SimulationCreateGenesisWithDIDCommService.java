@@ -1,4 +1,4 @@
-package test;
+package test.create;
 
 import com.danubetech.kms.clientkeyinterface.ClientKeyInterface;
 import com.danubetech.kms.clientstateinterface.ClientStateInterface;
@@ -11,9 +11,9 @@ import uniregistrar.openapi.model.*;
 import java.util.*;
 import java.util.concurrent.Callable;
 
-public class BTCR2SimulationCreateGenesis {
+public class BTCR2SimulationCreateGenesisWithDIDCommService {
 
-    public static Collection<Callable<CreateState>> create(ClientUniRegistrar clientUniRegistrar, ClientKeyInterface<?> clientKeyInterface, int number, String network, String cohort) throws Exception {
+    public static Collection<Callable<CreateState>> create(ClientUniRegistrar clientUniRegistrar, ClientKeyInterface<?> clientKeyInterface, int number, String network, String[] cohorts) throws Exception {
 
         Collection<Callable<CreateState>> callables = new ArrayList<>();
         for (int i=0; i<number; i++) {
@@ -25,11 +25,11 @@ public class BTCR2SimulationCreateGenesis {
                     requestOptions.setClientSecretMode(Boolean.TRUE);
                     requestOptions.putAdditionalProperty("network", network);
                     requestOptions.putAdditionalProperty("generateStandardBeacons", Boolean.TRUE);
-                    requestOptions.putAdditionalProperty("generateAggregateBeacon", cohort);
+                    requestOptions.putAdditionalProperty("generateAggregateBeacons", String.join(",", cohorts));
                     requestOptions.putAdditionalProperty("publishToIpfs", Boolean.FALSE);
 
                     DidDocument didDocument = new DidDocument();
-                    didDocument.addServiceItem(randomService());
+                    didDocument.addServiceItem(service());
 
                     CreateRequest createRequest = new CreateRequest();
                     createRequest.setOptions(requestOptions);
@@ -66,7 +66,7 @@ public class BTCR2SimulationCreateGenesis {
         return callables;
     }
 
-    private static Map<String, Object> randomService() {
+    private static Map<String, Object> service() {
         return Map.of(
                 "id", "#didcomm",
                 "type", "DIDCommMessaging",

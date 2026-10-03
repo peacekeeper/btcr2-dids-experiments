@@ -26,7 +26,7 @@ public class MainUpdate {
     static final int THREADS = 10;
 
     static ClientUniRegistrar clientUniRegistrar = ClientUniRegistrar.create(BASE_URI);
-    static ClientKeyInterface<?> clientKeyInterface = ClientKeyInterfaceFactory.clientKeyInterface(ClientKeyInterfaceFactory.KMSProvider.LOCAL_INMEMORY, null, null, null, null);
+    static ClientKeyInterface<?> clientKeyInterface = ClientKeyInterfaceFactory.clientKeyInterface(ClientKeyInterfaceFactory.KMSProvider.LOCAL_FILE, null, null, null, null);
 
     static ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor();
     static JsonMapper jsonMapper = JsonMapper.builder().build();

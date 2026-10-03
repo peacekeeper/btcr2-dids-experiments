@@ -17,14 +17,13 @@ public class BTCR2SimulationUpdateAddDWNService {
 
         Collection<Callable<UpdateState>> callables = new ArrayList<>();
         for (int i=0; i<dids.size(); i++) {
-            String did = dids.get(i);
-            Map<String, Object> resolutionOptions = didResolutionOptions.get(did);
+            final String did = dids.get(i);
+            final Map<String, Object> resolutionOptions = didResolutionOptions.get(did);
             callables.add(() -> {
                 try {
 
                     RequestOptions requestOptions = new RequestOptions();
                     requestOptions.setClientSecretMode(Boolean.TRUE);
-                    System.out.println(resolutionOptions);
                     requestOptions.putAdditionalProperty("resolutionOptions", resolutionOptions);
                     requestOptions.putAdditionalProperty("beaconServiceType", "SMTBeacon");
                     requestOptions.putAdditionalProperty("publishToIpfs", Boolean.FALSE);
@@ -44,6 +43,8 @@ public class BTCR2SimulationUpdateAddDWNService {
                         UpdateState updateState = clientUniRegistrar.update("btcr2", updateRequest);
                         Optional<RegistrarRequest> newRequest = InternalSecretMode.handleState(updateRequest, updateState, clientKeyInterface, clientStateInterface);
 
+                        System.out.println(did);
+
                         if ("finished".equals(updateState.getDidState().getState())) {
                             System.out.println(did + ": " + updateState.getDidState().getDid() + " -> " + updateState.getDidState().getState() + " (" + ((DidStateFinished) updateState.getDidState()).getDid() + ")");
                             return updateState;
@@ -56,7 +57,10 @@ public class BTCR2SimulationUpdateAddDWNService {
 
                         if ("action".equals(updateState.getDidState().getState())) {
                             System.out.println(did + ": " + updateState.getDidState().getDid() + " -> " + updateState.getDidState().getState() + " (" + ((DidStateAction) updateState.getDidState()).getAction() + ")");
-                            if (newRequest == null) throw new RegistrationException("'action' state not handled.");
+                            if (newRequest == null) {
+                                Thread.sleep(1000);
+                                continue;
+                            }
                             if (newRequest.isEmpty()) throw new RegistrationException("No new request after handling 'action' state.");
                             updateRequest = (UpdateRequest) newRequest.get();
                         }

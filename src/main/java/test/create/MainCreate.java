@@ -21,11 +21,11 @@ public class MainCreate {
     static final URI BASE_URI = URI.create("https://api.dev.godiddy.com/1.0.0/universal-registrar");
     static final String API_KEY = "c4aa5dd6-4a08-4014-8510-17eb99eddb79";
     static final String NETWORK = "mutinynet";
-    static final int NUMBER = 10;
+    static final int NUMBER = 2;
     static final int THREADS = 10;
 
     static ClientUniRegistrar clientUniRegistrar = ClientUniRegistrar.create(BASE_URI);
-    static ClientKeyInterface<?> clientKeyInterface = ClientKeyInterfaceFactory.clientKeyInterface(ClientKeyInterfaceFactory.KMSProvider.LOCAL_INMEMORY, null, null, null, null);
+    static ClientKeyInterface<?> clientKeyInterface = ClientKeyInterfaceFactory.clientKeyInterface(ClientKeyInterfaceFactory.KMSProvider.LOCAL_FILE, null, null, null, null);
 
     static ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor();
     static JsonMapper jsonMapper = JsonMapper.builder().build();
@@ -39,8 +39,8 @@ public class MainCreate {
         // execute
 
         String[] cohorts = new String[]{
-                "cohort-" + NETWORK + "-smt-" + NUMBER + "-" + Math.abs(new Random().nextInt()),
-                "cohort-" + NETWORK + "-cas-" + NUMBER + "-" + Math.abs(new Random().nextInt())
+                "cohort-" + NETWORK + "-smt-" + NUMBER + "*" + Math.abs(new Random().nextInt()),
+                "cohort-" + NETWORK + "-cas-" + NUMBER + "*" + Math.abs(new Random().nextInt())
         };
 
         Collection<Callable<CreateState>> createCallables = BTCR2SimulationCreateGenesisWithDIDCommService.create(clientUniRegistrar, clientKeyInterface, NUMBER, NETWORK, cohorts);

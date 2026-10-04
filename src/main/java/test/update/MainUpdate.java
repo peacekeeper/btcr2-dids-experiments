@@ -51,9 +51,12 @@ public class MainUpdate {
         }
         bufferedReader.close();
 
+        System.out.println("inputDids: " + inputDids);
+
         // execute
 
-        Collection<Callable<UpdateState>> updateCallables = BTCR2SimulationUpdateAddDWNService.update(clientUniRegistrar, clientKeyInterface, inputDids, inputResolutionOptions);
+        Collection<Callable<UpdateState>> updateCallables = BTCR2SimulationUpdateAddDWNService.update(clientUniRegistrar, clientKeyInterface, inputDids, inputResolutionOptions, "SMTBeacon");
+        System.out.println("Invoking " + updateCallables.size() + " virtual threads.");
         Collection<Future<UpdateState>> updateFutures = executorService.invokeAll(updateCallables);
         executorService.shutdown();
 
@@ -73,13 +76,24 @@ public class MainUpdate {
         PrintWriter printWriter = new PrintWriter(new FileWriter("./update-out.jsonl"));
         for (Future<UpdateState> updateFuture : updateFutures) {
             UpdateState updateState = updateFuture.get();
-            List<Map<String, Object>> didDocumentMetadataUpdates = (List<Map<String, Object>>) updateState.getDidDocumentMetadata().get("updates");
             String did = updateState.getDidState().getDid();
-            Map<String, Object> sidecar = new HashMap<>();
-            sidecar.putAll(inputResolutionOptions.get(did));
-            sidecar.put("updates", didDocumentMetadataUpdates);
-            Map<String, Object> resolutionOptions = new HashMap<>();
-            resolutionOptions.put("sidecar", sidecar);
+            Map<String, Object> update = (Map<String, Object>) updateState.getDidDocumentMetadata().get("update");
+            Map<String, Object> casAnnouncement = (Map<String, Object>) updateState.getDidDocumentMetadata().get("casAnnouncement");
+            Map<String, Object> smtProof = (Map<String, Object>) updateState.getDidDocumentMetadata().get("smtProof");
+            Map<String, Object> resolutionOptions = new HashMap<>(inputResolutionOptions.get(did));
+            Map<String, Object> sidecar = (Map<String, Object>) resolutionOptions.computeIfAbsent("sidecar", (key) -> new HashMap<>());
+            if (update != null) {
+                List<Map<String, Object>> updates = (List<Map<String, Object>>) sidecar.computeIfAbsent("updates", (key) -> new LinkedList<>());
+                updates.add(update);
+            }
+            if (casAnnouncement != null) {
+                List<Map<String, Object>> casUpdates = (List<Map<String, Object>>) sidecar.computeIfAbsent("casUpdates", (key) -> new LinkedList<>());
+                casUpdates.add(casAnnouncement);
+            }
+            if (smtProof != null) {
+                List<Map<String, Object>> smtProofs = (List<Map<String, Object>>) sidecar.computeIfAbsent("smtProofs", (key) -> new LinkedList<>());
+                smtProofs.add(smtProof);
+            }
             printWriter.println(did);
             printWriter.println(jsonMapper.writeValueAsString(resolutionOptions));
         }

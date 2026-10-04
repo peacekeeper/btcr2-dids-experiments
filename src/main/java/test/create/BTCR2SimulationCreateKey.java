@@ -4,6 +4,7 @@ import com.danubetech.kms.clientkeyinterface.ClientKeyInterface;
 import com.danubetech.kms.clientstateinterface.ClientStateInterface;
 import com.danubetech.kms.clientstateinterface.impl.memory.InMemoryClientStateInterface;
 import com.danubetech.uniregistrar.local.internalsecretmode.InternalSecretMode;
+import test.util.StateUtil;
 import uniregistrar.RegistrationException;
 import uniregistrar.client.ClientUniRegistrar;
 import uniregistrar.openapi.model.*;
@@ -15,7 +16,7 @@ import java.util.concurrent.Callable;
 
 public class BTCR2SimulationCreateKey {
 
-    public static Collection<Callable<CreateState>> create(ClientUniRegistrar clientUniRegistrar, ClientKeyInterface<?> clientKeyInterface, int number, String network, String cohort) throws Exception {
+    public static Collection<Callable<CreateState>> create(ClientUniRegistrar clientUniRegistrar, ClientKeyInterface<?> clientKeyInterface, int number, String network, String[] cohorts) throws Exception {
 
         Collection<Callable<CreateState>> callables = new ArrayList<>();
         for (int i=0; i<number; i++) {
@@ -27,7 +28,7 @@ public class BTCR2SimulationCreateKey {
                     requestOptions.setClientSecretMode(Boolean.TRUE);
                     requestOptions.putAdditionalProperty("network", network);
                     requestOptions.putAdditionalProperty("generateStandardBeacons", Boolean.TRUE);
-                    requestOptions.putAdditionalProperty("generateAggregateBeacon", cohort);
+                    requestOptions.putAdditionalProperty("generateAggregateBeacons", String.join(",", cohorts));
                     requestOptions.putAdditionalProperty("publishToIpfs", Boolean.FALSE);
 
                     CreateRequest createRequest = new CreateRequest();
@@ -35,28 +36,29 @@ public class BTCR2SimulationCreateKey {
 
                     ClientStateInterface clientStateInterface = new InMemoryClientStateInterface();
 
-                    while(true) {
+                    while (true) {
+
                         CreateState createState = clientUniRegistrar.create("btcr2", createRequest);
                         Optional<RegistrarRequest> newRequest = InternalSecretMode.handleState(createRequest, createState, clientKeyInterface, clientStateInterface);
 
+                        System.out.println(finalI + ": " + StateUtil.stateToString(createState));
+
                         if ("finished".equals(createState.getDidState().getState())) {
-                            System.out.println(finalI + ": " + createState.getDidState().getDid() + " -> " + createState.getDidState().getState() + " (" + ((DidStateFinished) createState.getDidState()).getDid() + ")");
                             return createState;
                         }
 
                         if ("wait".equals(createState.getDidState().getState())) {
-                            System.out.println(finalI + ": " + createState.getDidState().getDid() + " -> " + createState.getDidState().getState() + " (" + ((DidStateWait) createState.getDidState()).getWait() + ")");
                             Thread.sleep(1000);
+                            continue;
                         }
 
                         if ("action".equals(createState.getDidState().getState())) {
-                            System.out.println(finalI + ": " + createState.getDidState().getDid() + " -> " + createState.getDidState().getState() + " (" + ((DidStateAction) createState.getDidState()).getAction() + ")");
                             if (newRequest == null) {
                                 Thread.sleep(1000);
-                                continue;
+                            } else {
+                                createRequest = (CreateRequest) newRequest.get();
                             }
-                            if (newRequest.isEmpty()) throw new RegistrationException("No new request after handling 'action' state.");
-                            createRequest = (CreateRequest) newRequest.get();
+                            continue;
                         }
                     }
                 } catch (Exception ex) {

@@ -4,7 +4,7 @@ import com.danubetech.kms.clientkeyinterface.ClientKeyInterface;
 import com.danubetech.kms.clientstateinterface.ClientStateInterface;
 import com.danubetech.kms.clientstateinterface.impl.memory.InMemoryClientStateInterface;
 import com.danubetech.uniregistrar.local.internalsecretmode.InternalSecretMode;
-import uniregistrar.RegistrationException;
+import test.util.StateUtil;
 import uniregistrar.client.ClientUniRegistrar;
 import uniregistrar.openapi.model.*;
 
@@ -13,7 +13,7 @@ import java.util.concurrent.Callable;
 
 public class BTCR2SimulationUpdateAddDWNService {
 
-    public static Collection<Callable<UpdateState>> update(ClientUniRegistrar clientUniRegistrar, ClientKeyInterface<?> clientKeyInterface, List<String> dids, Map<String, Map<String, Object>> didResolutionOptions) throws Exception {
+    public static Collection<Callable<UpdateState>> update(ClientUniRegistrar clientUniRegistrar, ClientKeyInterface<?> clientKeyInterface, List<String> dids, Map<String, Map<String, Object>> didResolutionOptions, String beaconServiceType) throws Exception {
 
         Collection<Callable<UpdateState>> callables = new ArrayList<>();
         for (int i=0; i<dids.size(); i++) {
@@ -25,7 +25,7 @@ public class BTCR2SimulationUpdateAddDWNService {
                     RequestOptions requestOptions = new RequestOptions();
                     requestOptions.setClientSecretMode(Boolean.TRUE);
                     requestOptions.putAdditionalProperty("resolutionOptions", resolutionOptions);
-                    requestOptions.putAdditionalProperty("beaconServiceType", "SMTBeacon");
+                    requestOptions.putAdditionalProperty("beaconServiceType", beaconServiceType);
                     requestOptions.putAdditionalProperty("publishToIpfs", Boolean.FALSE);
 
                     DidDocument didDocument = new DidDocument();
@@ -39,30 +39,29 @@ public class BTCR2SimulationUpdateAddDWNService {
 
                     ClientStateInterface clientStateInterface = new InMemoryClientStateInterface();
 
-                    while(true) {
+                    while (true) {
+
                         UpdateState updateState = clientUniRegistrar.update("btcr2", updateRequest);
                         Optional<RegistrarRequest> newRequest = InternalSecretMode.handleState(updateRequest, updateState, clientKeyInterface, clientStateInterface);
 
-                        System.out.println(did);
+                        System.out.println(did + ": " + StateUtil.stateToString(updateState));
 
                         if ("finished".equals(updateState.getDidState().getState())) {
-                            System.out.println(did + ": " + updateState.getDidState().getDid() + " -> " + updateState.getDidState().getState() + " (" + ((DidStateFinished) updateState.getDidState()).getDid() + ")");
                             return updateState;
                         }
 
                         if ("wait".equals(updateState.getDidState().getState())) {
-                            System.out.println(did + ": " + updateState.getDidState().getDid() + " -> " + updateState.getDidState().getState() + " (" + ((DidStateWait) updateState.getDidState()).getWait() + ")");
                             Thread.sleep(1000);
+                            continue;
                         }
 
                         if ("action".equals(updateState.getDidState().getState())) {
-                            System.out.println(did + ": " + updateState.getDidState().getDid() + " -> " + updateState.getDidState().getState() + " (" + ((DidStateAction) updateState.getDidState()).getAction() + ")");
                             if (newRequest == null) {
                                 Thread.sleep(1000);
-                                continue;
+                            } else {
+                                updateRequest = (UpdateRequest) newRequest.get();
                             }
-                            if (newRequest.isEmpty()) throw new RegistrationException("No new request after handling 'action' state.");
-                            updateRequest = (UpdateRequest) newRequest.get();
+                            continue;
                         }
                     }
                 } catch (Exception ex) {

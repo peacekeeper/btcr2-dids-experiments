@@ -19,19 +19,37 @@ import java.util.concurrent.ScheduledExecutorService;
 public class MainCreate {
 
     static final String NETWORK = "mutinynet";
-    static final int NUMBER = 10000;
+    static final int NUMBER = 100;
     static int COHORTS_AVERAGE_SIZE = 100;
     /*static final String[] COHORTS = new String[] {
             "cohort-" + NETWORK + "-smt-" + NUMBER + "*" + Math.abs(new Random().nextInt())
             //"cohort-" + NETWORK + "-cas-" + NUMBER + "*" + Math.abs(new Random().nextInt())
     };*/
 
-    static final List<String> COHORTS_SMT;
-    static final List<String> COHORTS_CAS;
+    static final LinkedHashMap<String, Integer> COHORTS_CAS;
+    static final LinkedHashMap<String, Integer> COHORTS_SMT;
+
+    static final Map<Integer, List<String>> COHORTS = new HashMap<>();
 
     static {
         int COHORTS_NUMBER = NUMBER / COHORTS_AVERAGE_SIZE;
-        COHORTS_SMT = new ArrayList<>();
+        Random RANDOM = new Random();
+        COHORTS_CAS = new LinkedHashMap<>(COHORTS_NUMBER);
+        COHORTS_SMT = new LinkedHashMap<>(COHORTS_NUMBER);
+        for (int i=0; i<COHORTS_NUMBER; i++) {
+            int COHORT_SIZE = COHORTS_AVERAGE_SIZE;
+            COHORTS_CAS.put("cohort-" + NETWORK + "-cas-" + COHORT_SIZE + "*" + Math.abs(RANDOM.nextInt()), COHORT_SIZE);
+            COHORTS_SMT.put("cohort-" + NETWORK + "-smt-" + COHORT_SIZE + "*" + Math.abs(RANDOM.nextInt()), COHORT_SIZE);
+        }
+        for (int i=0; i<NUMBER; i++) {
+            List<String> COHORTS_CAS_LIST = new ArrayList<>(COHORTS_CAS.keySet());
+            List<String> COHORTS_SMT_LIST = new ArrayList<>(COHORTS_SMT.keySet());
+            String COHORT_CAS, COHORT_SMT;
+            do { COHORT_CAS = COHORTS_CAS_LIST.get(RANDOM.nextInt(COHORTS_CAS_LIST.size())); } while (COHORTS_CAS.get(COHORT_CAS) > 0);
+            do { COHORT_SMT = COHORTS_SMT_LIST.get(RANDOM.nextInt(COHORTS_SMT_LIST.size())); } while (COHORTS_SMT.get(COHORT_SMT) > 0);
+            COHORTS_CAS.computeIfPresent(COHORT_CAS, (k, v) -> v - 1);
+            COHORTS_SMT.computeIfPresent(COHORT_SMT, (k, v) -> v - 1);
+        }
     }
 
     static ClientKeyInterface<ClientKey> clientKeyInterface = (ClientKeyInterface<ClientKey>) ClientKeyInterfaceFactory.clientKeyInterface(ClientKeyInterfaceFactory.KMSProvider.LOCAL_FILE, null, null, null, null);

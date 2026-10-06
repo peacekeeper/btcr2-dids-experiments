@@ -1,10 +1,8 @@
 package test.create;
 
-import com.danubetech.kms.ClientKeyException;
 import com.danubetech.kms.clientkeyinterface.ClientKey;
 import com.danubetech.kms.clientkeyinterface.ClientKeyInterface;
 import com.danubetech.kms.clientkeyinterface.ClientKeyInterfaceFactory;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import uniregistrar.openapi.model.CreateState;
 
@@ -21,11 +19,20 @@ import java.util.concurrent.ScheduledExecutorService;
 public class MainCreate {
 
     static final String NETWORK = "mutinynet";
-    static final int NUMBER = 5;
-    static final String[] COHORTS = new String[] {
-            "cohort-" + NETWORK + "-smt-" + NUMBER + "*" + Math.abs(new Random().nextInt()),
-            "cohort-" + NETWORK + "-cas-" + NUMBER + "*" + Math.abs(new Random().nextInt())
-    };
+    static final int NUMBER = 10000;
+    static int COHORTS_AVERAGE_SIZE = 100;
+    /*static final String[] COHORTS = new String[] {
+            "cohort-" + NETWORK + "-smt-" + NUMBER + "*" + Math.abs(new Random().nextInt())
+            //"cohort-" + NETWORK + "-cas-" + NUMBER + "*" + Math.abs(new Random().nextInt())
+    };*/
+
+    static final List<String> COHORTS_SMT;
+    static final List<String> COHORTS_CAS;
+
+    static {
+        int COHORTS_NUMBER = NUMBER / COHORTS_AVERAGE_SIZE;
+        COHORTS_SMT = new ArrayList<>();
+    }
 
     static ClientKeyInterface<ClientKey> clientKeyInterface = (ClientKeyInterface<ClientKey>) ClientKeyInterfaceFactory.clientKeyInterface(ClientKeyInterfaceFactory.KMSProvider.LOCAL_FILE, null, null, null, null);
 

@@ -5,7 +5,8 @@
 /bin/
 /.idea/
 *.iml
-create-out.jsonl
-update-out.jsonl
-deactivate-out.jsonl
 keys.json
+create-out*
+update-out*
+deactivate-out*
+analyze-out*

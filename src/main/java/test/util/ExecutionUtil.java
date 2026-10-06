@@ -49,6 +49,6 @@ public class ExecutionUtil {
             } catch (Exception ex) {
                 future.completeExceptionally(new RuntimeException(task + "/" + iteration + ": " + ex.getMessage(), ex));
             }
-        }, random.nextInt(1000), TimeUnit.MILLISECONDS);
+        }, random.nextInt(100), TimeUnit.MILLISECONDS);
     }
 }

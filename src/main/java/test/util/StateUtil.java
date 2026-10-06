@@ -4,13 +4,11 @@ import uniregistrar.openapi.model.DidStateAction;
 import uniregistrar.openapi.model.DidStateWait;
 import uniregistrar.openapi.model.RegistrarState;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.*;
 
 public class StateUtil {
 
-    private static ConcurrentSkipListMap<Object, String> stateMap = new ConcurrentSkipListMap<>();
+    private static Map<Object, String> stateMap = Collections.synchronizedMap(new HashMap<>());
 
     public static String stateStats(Object key, RegistrarState registrarState) {
         stateMap.put(key, stateString(registrarState, false));

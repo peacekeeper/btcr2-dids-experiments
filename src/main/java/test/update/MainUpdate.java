@@ -4,45 +4,58 @@ import com.danubetech.kms.clientkeyinterface.ClientKey;
 import com.danubetech.kms.clientkeyinterface.ClientKeyInterface;
 import com.danubetech.kms.clientkeyinterface.ClientKeyInterfaceFactory;
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import uniregistrar.client.ClientUniRegistrar;
 import uniregistrar.openapi.model.UpdateState;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.URI;
 import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
 
 public class MainUpdate {
 
-    static final URI BASE_URI = URI.create("https://api.dev.godiddy.com/1.0.0/universal-registrar");
-    static final String API_KEY = "c4aa5dd6-4a08-4014-8510-17eb99eddb79";
-    static final String NETWORK = "mutinynet";
-    static final int THREADS = 10;
-
-    static ClientUniRegistrar clientUniRegistrar = ClientUniRegistrar.create(BASE_URI);
     static ClientKeyInterface<?> clientKeyInterface = ClientKeyInterfaceFactory.clientKeyInterface(ClientKeyInterfaceFactory.KMSProvider.LOCAL_FILE, null, null, null, null);
 
-    static ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor();
+    static ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
     static JsonMapper jsonMapper = JsonMapper.builder().build();
-
-    static {
-        clientUniRegistrar.setHttpHeaders(Map.of("Authorization", "Bearer " + API_KEY));
-    }
 
     public static void main(String[] args) throws Exception {
 
-        // prepare input
+        // read input
 
-        BufferedReader bufferedReader = new BufferedReader(new FileReader("./create-out.jsonl"));
-        String line;
         List<String> inputDids = new ArrayList<>();
         Map<String, Map<String, Object>> inputResolutionOptions = new HashMap<>();
+        readCreateOut(inputDids, inputResolutionOptions);
+        System.out.println("inputDids: " + inputDids);
+
+        // execute
+
+        Collection<CompletableFuture<UpdateState>> completableFutures = BTCR2SimulationUpdateAddDWNService.update(executorService, clientKeyInterface, inputDids, inputResolutionOptions, "SMTBeacon");
+        System.out.println("Waiting for " + completableFutures.size() + " results.");
+        CompletableFuture.allOf(completableFutures.toArray(CompletableFuture[]::new)).join();
+        Collection<UpdateState> updateStates = completableFutures.stream().map(CompletableFuture::join).toList();
+        executorService.shutdown();
+
+        // print result
+
+        List<? extends ClientKey> resultKeys = clientKeyInterface.getKeys(null, null, null, null);
+        List<String> resultDids = resultKeys.stream().map(ClientKey::getController).map(URI::toString).toList();
+        System.out.println("DIDs: " + resultDids.size() + ", Keys: " + resultKeys.size());
+
+        for (UpdateState updateState : updateStates) {
+            System.out.println("DONE: " + updateState.getDidState().getDid() + " => " + updateState.getDidState().getState());
+        }
+
+        // write result to file
+
+        writeUpdateOut(updateStates, inputResolutionOptions);
+    }
+
+    private static void readCreateOut(List<String> inputDids, Map<String, Map<String, Object>> inputResolutionOptions) throws IOException {
+        BufferedReader bufferedReader = new BufferedReader(new FileReader("./create-out.jsonl"));
+        String line;
         while ((line=bufferedReader.readLine()) != null) {
             if (line.startsWith("did:"))
                 inputDids.add(line);
@@ -50,32 +63,11 @@ public class MainUpdate {
                 inputResolutionOptions.put(inputDids.get(inputDids.size()-1), jsonMapper.readValue(line, Map.class));
         }
         bufferedReader.close();
+    }
 
-        System.out.println("inputDids: " + inputDids);
-
-        // execute
-
-        Collection<Callable<UpdateState>> updateCallables = BTCR2SimulationUpdateAddDWNService.update(clientUniRegistrar, clientKeyInterface, inputDids, inputResolutionOptions, "SMTBeacon");
-        System.out.println("Invoking " + updateCallables.size() + " virtual threads.");
-        Collection<Future<UpdateState>> updateFutures = executorService.invokeAll(updateCallables);
-        executorService.shutdown();
-
-        // log result
-
-        List<? extends ClientKey> resultKeys = clientKeyInterface.getKeys(null, null, null, null);
-        List<String> resultDids = resultKeys.stream().map(ClientKey::getController).map(URI::toString).toList();
-        System.out.println("DIDs: " + resultDids.size() + ", Keys: " + resultKeys.size());
-
-        for (Future<UpdateState> updateFuture : updateFutures) {
-            UpdateState updateState = updateFuture.get();
-            System.out.println("DONE: " + updateState.getDidState().getDid() + " => " + updateState.getDidState().getState());
-        }
-
-        // write result
-
+    private static void writeUpdateOut(Collection<UpdateState> updateStates, Map<String, Map<String, Object>> inputResolutionOptions) throws IOException, ExecutionException, InterruptedException {
         PrintWriter printWriter = new PrintWriter(new FileWriter("./update-out.jsonl"));
-        for (Future<UpdateState> updateFuture : updateFutures) {
-            UpdateState updateState = updateFuture.get();
+        for (UpdateState updateState : updateStates) {
             String did = updateState.getDidState().getDid();
             Map<String, Object> update = (Map<String, Object>) updateState.getDidDocumentMetadata().get("update");
             Map<String, Object> casAnnouncement = (Map<String, Object>) updateState.getDidDocumentMetadata().get("casAnnouncement");

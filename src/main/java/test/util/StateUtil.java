@@ -10,10 +10,10 @@ import java.util.concurrent.ConcurrentSkipListMap;
 
 public class StateUtil {
 
-    private static ConcurrentSkipListMap<Integer, String> stateMap = new ConcurrentSkipListMap<>();
+    private static ConcurrentSkipListMap<Object, String> stateMap = new ConcurrentSkipListMap<>();
 
-    public static String stateStats(int i, RegistrarState registrarState) {
-        stateMap.put(i, stateString(registrarState, false));
+    public static String stateStats(Object key, RegistrarState registrarState) {
+        stateMap.put(key, stateString(registrarState, false));
         Set<String> valueSet = new HashSet<>(stateMap.values());
         StringBuilder stringBuilder = new StringBuilder();
         valueSet.forEach(value -> {
@@ -41,6 +41,7 @@ public class StateUtil {
             case "finished" -> {
                 stringBuilder.append(")");
                 if (details) {
+                    stringBuilder.append(": ");
                     stringBuilder.append(registrarState.getDidState().getDid());
                 }
             }
@@ -71,7 +72,7 @@ public class StateUtil {
                     switch (((DidStateWait) registrarState.getDidState()).getWait()) {
                         case "completeAggregationCohort" -> {
                             stringBuilder.append(": ");
-                            stringBuilder.append(registrarState.getDidState().getAdditionalProperty("aggregationCohort"));
+                            stringBuilder.append(registrarState.getDidState().getAdditionalProperty("aggregationCohorts"));
                         }
                         case "completeAggregationUpdates" -> {
                             stringBuilder.append(": ");

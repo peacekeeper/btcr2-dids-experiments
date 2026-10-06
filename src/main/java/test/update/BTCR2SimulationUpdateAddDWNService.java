@@ -3,73 +3,51 @@ package test.update;
 import com.danubetech.kms.clientkeyinterface.ClientKeyInterface;
 import com.danubetech.kms.clientstateinterface.ClientStateInterface;
 import com.danubetech.kms.clientstateinterface.impl.memory.InMemoryClientStateInterface;
-import com.danubetech.uniregistrar.local.internalsecretmode.InternalSecretMode;
-import test.util.StateUtil;
-import uniregistrar.client.ClientUniRegistrar;
-import uniregistrar.openapi.model.*;
+import test.util.ExecutionUtil;
+import uniregistrar.openapi.model.DidDocument;
+import uniregistrar.openapi.model.RequestOptions;
+import uniregistrar.openapi.model.UpdateRequest;
+import uniregistrar.openapi.model.UpdateState;
 
 import java.util.*;
-import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ScheduledExecutorService;
 
 public class BTCR2SimulationUpdateAddDWNService {
 
-    public static Collection<Callable<UpdateState>> update(ClientUniRegistrar clientUniRegistrar, ClientKeyInterface<?> clientKeyInterface, List<String> dids, Map<String, Map<String, Object>> didResolutionOptions, String beaconServiceType) throws Exception {
+    public static Collection<CompletableFuture<UpdateState>> update(ScheduledExecutorService executorService, ClientKeyInterface<?> clientKeyInterface, List<String> dids, Map<String, Map<String, Object>> didResolutionOptions, String beaconServiceType) throws Exception {
 
-        Collection<Callable<UpdateState>> callables = new ArrayList<>();
+        Collection<CompletableFuture<UpdateState>> futures = new ArrayList<>();
+
         for (int i=0; i<dids.size(); i++) {
+
             final String did = dids.get(i);
             final Map<String, Object> resolutionOptions = didResolutionOptions.get(did);
-            callables.add(() -> {
-                try {
 
-                    RequestOptions requestOptions = new RequestOptions();
-                    requestOptions.setClientSecretMode(Boolean.TRUE);
-                    requestOptions.putAdditionalProperty("resolutionOptions", resolutionOptions);
-                    requestOptions.putAdditionalProperty("beaconServiceType", beaconServiceType);
-                    requestOptions.putAdditionalProperty("publishToIpfs", Boolean.FALSE);
+            CompletableFuture<UpdateState> future = new CompletableFuture<>();
+            futures.add(future);
 
-                    DidDocument didDocument = new DidDocument();
-                    didDocument.addServiceItem(service());
+            RequestOptions requestOptions = new RequestOptions();
+            requestOptions.setClientSecretMode(Boolean.TRUE);
+            requestOptions.putAdditionalProperty("resolutionOptions", resolutionOptions);
+            requestOptions.putAdditionalProperty("beaconServiceType", beaconServiceType);
+            requestOptions.putAdditionalProperty("publishToIpfs", Boolean.FALSE);
 
-                    UpdateRequest updateRequest = new UpdateRequest();
-                    updateRequest.setDid(did);
-                    updateRequest.setOptions(requestOptions);
-                    updateRequest.addDidDocumentOperationItem("addToDidDocument");
-                    updateRequest.addDidDocumentItem(didDocument);
+            DidDocument didDocument = new DidDocument();
+            didDocument.addServiceItem(service());
 
-                    ClientStateInterface clientStateInterface = new InMemoryClientStateInterface();
+            UpdateRequest updateRequest = new UpdateRequest();
+            updateRequest.setDid(did);
+            updateRequest.setOptions(requestOptions);
+            updateRequest.addDidDocumentOperationItem("addToDidDocument");
+            updateRequest.addDidDocumentItem(didDocument);
 
-                    while (true) {
+            ClientStateInterface clientStateInterface = new InMemoryClientStateInterface();
 
-                        UpdateState updateState = clientUniRegistrar.update("btcr2", updateRequest);
-                        Optional<RegistrarRequest> newRequest = InternalSecretMode.handleState(updateRequest, updateState, clientKeyInterface, clientStateInterface);
-
-                        System.out.println(did + ": " + StateUtil.stateToString(updateState));
-
-                        if ("finished".equals(updateState.getDidState().getState())) {
-                            return updateState;
-                        }
-
-                        if ("wait".equals(updateState.getDidState().getState())) {
-                            Thread.sleep(1000);
-                            continue;
-                        }
-
-                        if ("action".equals(updateState.getDidState().getState())) {
-                            if (newRequest == null) {
-                                Thread.sleep(1000);
-                            } else {
-                                updateRequest = (UpdateRequest) newRequest.get();
-                            }
-                            continue;
-                        }
-                    }
-                } catch (Exception ex) {
-                    throw new RuntimeException(did + ": " + ex.getMessage(), ex);
-                }
-            });
+            ExecutionUtil.submitIteration(executorService, clientKeyInterface, clientStateInterface, did, 0, updateRequest, future);
         }
-        return callables;
+
+        return futures;
     }
 
     private static Map<String, Object> service() {

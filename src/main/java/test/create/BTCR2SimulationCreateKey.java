@@ -4,68 +4,49 @@ import com.danubetech.kms.clientkeyinterface.ClientKeyInterface;
 import com.danubetech.kms.clientstateinterface.ClientStateInterface;
 import com.danubetech.kms.clientstateinterface.impl.memory.InMemoryClientStateInterface;
 import com.danubetech.uniregistrar.local.internalsecretmode.InternalSecretMode;
+import test.util.ClientUtil;
+import test.util.ExecutionUtil;
 import test.util.StateUtil;
-import uniregistrar.RegistrationException;
-import uniregistrar.client.ClientUniRegistrar;
-import uniregistrar.openapi.model.*;
+import uniregistrar.openapi.model.CreateRequest;
+import uniregistrar.openapi.model.CreateState;
+import uniregistrar.openapi.model.RegistrarRequest;
+import uniregistrar.openapi.model.RequestOptions;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
-import java.util.concurrent.Callable;
+import java.util.Random;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class BTCR2SimulationCreateKey {
 
-    public static Collection<Callable<CreateState>> create(ClientUniRegistrar clientUniRegistrar, ClientKeyInterface<?> clientKeyInterface, int number, String network, String[] cohorts) throws Exception {
+    public static Collection<CompletableFuture<CreateState>> create(ScheduledExecutorService executorService, ClientKeyInterface<?> clientKeyInterface, int number, String network, String[] cohorts) throws Exception {
 
-        Collection<Callable<CreateState>> callables = new ArrayList<>();
-        for (int i=0; i<number; i++) {
-            int finalI = i;
-            callables.add(() -> {
-                try {
+        Collection<CompletableFuture<CreateState>> futures = new ArrayList<>();
 
-                    RequestOptions requestOptions = new RequestOptions();
-                    requestOptions.setClientSecretMode(Boolean.TRUE);
-                    requestOptions.putAdditionalProperty("network", network);
-                    requestOptions.putAdditionalProperty("generateStandardBeacons", Boolean.TRUE);
-                    requestOptions.putAdditionalProperty("generateAggregateBeacons", String.join(",", cohorts));
-                    requestOptions.putAdditionalProperty("publishToIpfs", Boolean.FALSE);
+        for (int task=0; task<number; task++) {
 
-                    CreateRequest createRequest = new CreateRequest();
-                    createRequest.setOptions(requestOptions);
+            CompletableFuture<CreateState> future = new CompletableFuture<>();
+            futures.add(future);
 
-                    ClientStateInterface clientStateInterface = new InMemoryClientStateInterface();
+            RequestOptions requestOptions = new RequestOptions();
+            requestOptions.setClientSecretMode(Boolean.TRUE);
+            requestOptions.putAdditionalProperty("network", network);
+            requestOptions.putAdditionalProperty("generateStandardBeacons", Boolean.TRUE);
+            requestOptions.putAdditionalProperty("generateAggregateBeacons", String.join(",", cohorts));
+            requestOptions.putAdditionalProperty("publishToIpfs", Boolean.FALSE);
 
-                    while (true) {
+            CreateRequest createRequest = new CreateRequest();
+            createRequest.setOptions(requestOptions);
 
-                        CreateState createState = clientUniRegistrar.create("btcr2", createRequest);
-                        Optional<RegistrarRequest> newRequest = InternalSecretMode.handleState(createRequest, createState, clientKeyInterface, clientStateInterface);
+            ClientStateInterface clientStateInterface = new InMemoryClientStateInterface();
 
-                        System.out.println(finalI + ": " + StateUtil.stateToString(createState));
-
-                        if ("finished".equals(createState.getDidState().getState())) {
-                            return createState;
-                        }
-
-                        if ("wait".equals(createState.getDidState().getState())) {
-                            Thread.sleep(1000);
-                            continue;
-                        }
-
-                        if ("action".equals(createState.getDidState().getState())) {
-                            if (newRequest == null) {
-                                Thread.sleep(1000);
-                            } else {
-                                createRequest = (CreateRequest) newRequest.get();
-                            }
-                            continue;
-                        }
-                    }
-                } catch (Exception ex) {
-                    throw new RuntimeException(finalI + ": " + ex.getMessage(), ex);
-                }
-            });
+            ExecutionUtil.submitIteration(executorService, clientKeyInterface, clientStateInterface, task, 0, createRequest, future);
         }
-        return callables;
+
+        return futures;
     }
 }

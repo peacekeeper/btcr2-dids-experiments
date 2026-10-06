@@ -4,72 +4,45 @@ import com.danubetech.kms.clientkeyinterface.ClientKeyInterface;
 import com.danubetech.kms.clientstateinterface.ClientStateInterface;
 import com.danubetech.kms.clientstateinterface.impl.memory.InMemoryClientStateInterface;
 import com.danubetech.uniregistrar.local.internalsecretmode.InternalSecretMode;
+import test.util.ClientUtil;
+import test.util.ExecutionUtil;
 import test.util.StateUtil;
-import uniregistrar.RegistrationException;
-import uniregistrar.client.ClientUniRegistrar;
 import uniregistrar.openapi.model.*;
 
 import java.util.*;
-import java.util.concurrent.Callable;
+import java.util.concurrent.*;
 
 public class BTCR2SimulationCreateGenesisWithDIDCommService {
 
-    public static Collection<Callable<CreateState>> create(ClientUniRegistrar clientUniRegistrar, ClientKeyInterface<?> clientKeyInterface, int number, String network, String[] cohorts) throws Exception {
+    public static Collection<CompletableFuture<CreateState>> create(ScheduledExecutorService executorService, ClientKeyInterface<?> clientKeyInterface, int number, String network, String[] cohorts) throws Exception {
 
-        Collection<Callable<CreateState>> callables = new ArrayList<>();
-        for (int i=0; i<number; i++) {
-            int finalI = i;
-            callables.add(() -> {
-                try {
+        Collection<CompletableFuture<CreateState>> futures = new ArrayList<>();
 
-                    RequestOptions requestOptions = new RequestOptions();
-                    requestOptions.setClientSecretMode(Boolean.TRUE);
-                    requestOptions.putAdditionalProperty("network", network);
-                    requestOptions.putAdditionalProperty("generateStandardBeacons", Boolean.TRUE);
-                    requestOptions.putAdditionalProperty("generateAggregateBeacons", String.join(",", cohorts));
-                    requestOptions.putAdditionalProperty("publishToIpfs", Boolean.FALSE);
+        for (int task=0; task<number; task++) {
 
-                    DidDocument didDocument = new DidDocument();
-                    didDocument.addServiceItem(service());
+            CompletableFuture<CreateState> future = new CompletableFuture<>();
+            futures.add(future);
 
-                    CreateRequest createRequest = new CreateRequest();
-                    createRequest.setOptions(requestOptions);
-                    createRequest.setDidDocument(didDocument);
+            RequestOptions requestOptions = new RequestOptions();
+            requestOptions.setClientSecretMode(Boolean.TRUE);
+            requestOptions.putAdditionalProperty("network", network);
+            requestOptions.putAdditionalProperty("generateStandardBeacons", Boolean.TRUE);
+            requestOptions.putAdditionalProperty("generateAggregateBeacons", String.join(",", cohorts));
+            requestOptions.putAdditionalProperty("publishToIpfs", Boolean.FALSE);
 
-                    ClientStateInterface clientStateInterface = new InMemoryClientStateInterface();
+            DidDocument didDocument = new DidDocument();
+            didDocument.addServiceItem(service());
 
-                    while (true) {
+            final CreateRequest createRequest = new CreateRequest();
+            createRequest.setOptions(requestOptions);
+            createRequest.setDidDocument(didDocument);
 
-                        CreateState createState = clientUniRegistrar.create("btcr2", createRequest);
-                        Optional<RegistrarRequest> newRequest = InternalSecretMode.handleState(createRequest, createState, clientKeyInterface, clientStateInterface);
+            ClientStateInterface clientStateInterface = new InMemoryClientStateInterface();
 
-                        System.out.println(finalI + ": " + StateUtil.stateToString(createState));
-                        System.out.println(StateUtil.stateStats(finalI, createState));
-
-                        if ("finished".equals(createState.getDidState().getState())) {
-                            return createState;
-                        }
-
-                        if ("wait".equals(createState.getDidState().getState())) {
-                            Thread.sleep(1000);
-                            continue;
-                        }
-
-                        if ("action".equals(createState.getDidState().getState())) {
-                            if (newRequest == null) {
-                                Thread.sleep(1000);
-                            } else {
-                                createRequest = (CreateRequest) newRequest.get();
-                            }
-                            continue;
-                        }
-                    }
-                } catch (Exception ex) {
-                    throw new RuntimeException(finalI + ": " + ex.getMessage(), ex);
-                }
-            });
+            ExecutionUtil.submitIteration(executorService, clientKeyInterface, clientStateInterface, task, 0, createRequest, future);
         }
-        return callables;
+
+        return futures;
     }
 
     private static Map<String, Object> service() {

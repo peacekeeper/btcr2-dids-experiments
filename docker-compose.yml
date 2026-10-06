@@ -1,0 +1,48 @@
+services:
+  danubetech-uni-registrar-web.uni-registrar:
+    container_name: danubetech-uni-registrar-web
+    image: repo.danubetech.com:5000/universalregistrar/danubetech-uni-registrar-web:latest
+    environment:
+      uniregistrar_spring_config_additional_location: file:/opt/config/application.yml
+    volumes:
+      - ./application-universal-registrar.yml:/opt/config/application.yml
+    ports:
+      - "9080:9080"
+  danubetech-uni-resolver-web.uni-resolver:
+    container_name: danubetech-uni-resolver-web
+    image: repo.danubetech.com:5000/universalresolver/danubetech-uni-resolver-web:latest
+    environment:
+      uniresolver_spring_config_additional_location: file:/opt/config/application.yml
+    volumes:
+      - ./application-universal-resolver.yml:/opt/config/application.yml
+    ports:
+      - "8080:8080"
+  driver-did-btcr2.uni-registrar:
+    container_name: universalregistrar_driver-did-btcr2
+    image: universalregistrar/driver-did-btcr2:latest
+    environment:
+      uniregistrar_driver_did_btcr2_bitcoinConnections: bitcoin;bitcoind;testnet3;bitcoind;signet;esploraelectrsrest;mutinynet;esploraelectrsrest
+      uniregistrar_driver_did_btcr2_bitcoinConnectionsUrls: bitcoin;http://user:pass@localhost:8332/;testnet3;http://user:pass@localhost:18332/;signet;https://mempool.space/signet/api/;mutinynet;https://mutinynet.com/api/
+      uniregistrar_driver_did_btcr2_bitcoinConnectionsCerts: bitcoin;;testnet3;;signet;;mutinynet;
+      uniregistrar_driver_did_btcr2_genesisHashes: bitcoin;6fe28c0ab6f1b372c1a6a246ae63f74f931e8365e15a089c68d6190000000000;testnet3;43497fd7f826957108f4a30fd9cec3aeba79972084e90ead01ea330900000000;signet;f61eee3b63a380a477a063af32b2bbc97c9ff9f01f2c4225e973988108000000;mutinynet;f61eee3b63a380a477a063af32b2bbc97c9ff9f01f2c4225e973988108000000
+      uniregistrar_driver_did_btcr2_ipfs: /ip4/172.17.0.1/tcp/5001
+      uniregistrar_driver_did_btcr2_ipfsTimeout: 10000
+    ports:
+      - "19080:9080"
+  driver-did-btcr2.uni-resolver:
+    container_name: universalresolver_driver-did-btcr2
+    image: universalresolver/driver-did-btcr2:latest
+    environment:
+      uniresolver_driver_did_btcr2_bitcoinConnections: bitcoin;bitcoind;testnet3;bitcoind;signet;esploraelectrsrest;mutinynet;esploraelectrsrest
+      uniresolver_driver_did_btcr2_bitcoinConnectionsUrls: bitcoin;http://user:pass@localhost:8332/;testnet3;http://user:pass@localhost:18332/;signet;https://mempool.space/signet/api/;mutinynet;https://mutinynet.bitcoin.danubetech.com/api/v1/
+      uniresolver_driver_did_btcr2_bitcoinConnectionsCerts: bitcoin;;testnet3;;signet;;mutinynet;
+      uniresolver_driver_did_btcr2_genesisHashes: bitcoin;6fe28c0ab6f1b372c1a6a246ae63f74f931e8365e15a089c68d6190000000000;testnet3;43497fd7f826957108f4a30fd9cec3aeba79972084e90ead01ea330900000000;signet;f61eee3b63a380a477a063af32b2bbc97c9ff9f01f2c4225e973988108000000;mutinynet;f61eee3b63a380a477a063af32b2bbc97c9ff9f01f2c4225e973988108000000
+      uniresolver_driver_did_btcr2_ipfs: /ip4/172.17.0.1/tcp/5001
+      uniresolver_driver_did_btcr2_ipfsTimeout: 10000
+    ports:
+      - "18080:8080"
+  ipfs:
+    container_name: ipfs
+    image: ipfs/kubo:release
+    ports:
+      - "5001:5001"

@@ -23,7 +23,8 @@ public class MainCreate {
     static final String NETWORK = "mutinynet";
     static final int NUMBER = 5;
     static final String[] COHORTS = new String[] {
-            "cohort-" + NETWORK + "-smt-" + NUMBER + "*" + Math.abs(new Random().nextInt())
+            "cohort-" + NETWORK + "-smt-" + NUMBER + "*" + Math.abs(new Random().nextInt()),
+            "cohort-" + NETWORK + "-cas-" + NUMBER + "*" + Math.abs(new Random().nextInt())
     };
 
     static ClientKeyInterface<ClientKey> clientKeyInterface = (ClientKeyInterface<ClientKey>) ClientKeyInterfaceFactory.clientKeyInterface(ClientKeyInterfaceFactory.KMSProvider.LOCAL_FILE, null, null, null, null);

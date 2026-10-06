@@ -14,7 +14,7 @@ import java.util.concurrent.*;
 
 public class BTCR2SimulationCreateGenesisWithDIDCommService {
 
-    public static Collection<CompletableFuture<CreateState>> create(ScheduledExecutorService executorService, ClientKeyInterface<?> clientKeyInterface, int number, String network, String[] cohorts) throws Exception {
+    public static Collection<CompletableFuture<CreateState>> create(ScheduledExecutorService executorService, ClientKeyInterface<?> clientKeyInterface, int number, String network, Map<Integer, List<String>> cohorts) throws Exception {
 
         Collection<CompletableFuture<CreateState>> futures = new ArrayList<>();
 
@@ -27,7 +27,7 @@ public class BTCR2SimulationCreateGenesisWithDIDCommService {
             requestOptions.setClientSecretMode(Boolean.TRUE);
             requestOptions.putAdditionalProperty("network", network);
             requestOptions.putAdditionalProperty("generateStandardBeacons", Boolean.TRUE);
-            requestOptions.putAdditionalProperty("generateAggregateBeacons", String.join(",", cohorts));
+            requestOptions.putAdditionalProperty("generateAggregateBeacons", String.join(",", cohorts.get(task)));
             requestOptions.putAdditionalProperty("publishToIpfs", Boolean.FALSE);
 
             DidDocument didDocument = new DidDocument();

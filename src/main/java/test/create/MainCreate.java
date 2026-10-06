@@ -20,7 +20,7 @@ public class MainCreate {
 
     static final String NETWORK = "mutinynet";
     static final int NUMBER = 100;
-    static int COHORTS_AVERAGE_SIZE = 100;
+    static int COHORTS_AVERAGE_SIZE = 10;
     /*static final String[] COHORTS = new String[] {
             "cohort-" + NETWORK + "-smt-" + NUMBER + "*" + Math.abs(new Random().nextInt())
             //"cohort-" + NETWORK + "-cas-" + NUMBER + "*" + Math.abs(new Random().nextInt())
@@ -45,10 +45,13 @@ public class MainCreate {
             List<String> COHORTS_CAS_LIST = new ArrayList<>(COHORTS_CAS.keySet());
             List<String> COHORTS_SMT_LIST = new ArrayList<>(COHORTS_SMT.keySet());
             String COHORT_CAS, COHORT_SMT;
-            do { COHORT_CAS = COHORTS_CAS_LIST.get(RANDOM.nextInt(COHORTS_CAS_LIST.size())); } while (COHORTS_CAS.get(COHORT_CAS) > 0);
-            do { COHORT_SMT = COHORTS_SMT_LIST.get(RANDOM.nextInt(COHORTS_SMT_LIST.size())); } while (COHORTS_SMT.get(COHORT_SMT) > 0);
+            do {
+                do { COHORT_CAS = COHORTS_CAS_LIST.get(RANDOM.nextInt(COHORTS_CAS_LIST.size())); } while (COHORTS_CAS.get(COHORT_CAS) == 0);
+                do { COHORT_SMT = COHORTS_SMT_LIST.get(RANDOM.nextInt(COHORTS_SMT_LIST.size())); } while (COHORTS_SMT.get(COHORT_SMT) == 0);
+            } while (COHORT_CAS.equals(COHORT_SMT));
             COHORTS_CAS.computeIfPresent(COHORT_CAS, (k, v) -> v - 1);
             COHORTS_SMT.computeIfPresent(COHORT_SMT, (k, v) -> v - 1);
+            COHORTS.put(i, List.of(COHORT_CAS, COHORT_SMT));
         }
     }
 
@@ -84,7 +87,6 @@ public class MainCreate {
         // write result to file
 
         writeCreateOut(createStates);
-
     }
 
     private static void reset() {
@@ -107,5 +109,6 @@ public class MainCreate {
             printWriter.println(did);
             printWriter.println(jsonMapper.writeValueAsString(resolutionOptions));
         }
-        printWriter.close();    }
+        printWriter.close();
+    }
 }

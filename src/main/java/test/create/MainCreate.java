@@ -91,7 +91,9 @@ public class MainCreate {
 
     private static void reset() {
         File file;
-        file = new File("./create.jsonl");
+        file = new File("./create-out.jsonl");
+        if (file.exists()) file.delete();
+        file = new File("./update-out.jsonl");
         if (file.exists()) file.delete();
         file = new File("./keys.json");
         if (file.exists()) file.delete();
@@ -103,6 +105,7 @@ public class MainCreate {
             String did = createState.getDidState().getDid();
             Map<String, Object> didDocumentMetadataGenesisDocument = (Map<String, Object>) createState.getDidDocumentMetadata().get("genesisDocument");
             Map<String, Object> resolutionOptions = new HashMap<>();
+            resolutionOptions.put("versionId", "1");
             Map<String, Object> sidecar = new HashMap<>();
             sidecar.put("genesisDocument", didDocumentMetadataGenesisDocument);
             resolutionOptions.put("sidecar", sidecar);

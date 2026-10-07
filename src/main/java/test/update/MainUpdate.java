@@ -27,7 +27,7 @@ public class MainUpdate {
 
         List<String> inputDids = new ArrayList<>();
         Map<String, Map<String, Object>> inputResolutionOptions = new HashMap<>();
-        readCreateOut(inputDids, inputResolutionOptions);
+        readOut(inputDids, inputResolutionOptions);
         System.out.println("inputDids: " + inputDids);
 
         // execute
@@ -53,8 +53,20 @@ public class MainUpdate {
         writeUpdateOut(updateStates, inputResolutionOptions);
     }
 
-    private static void readCreateOut(List<String> inputDids, Map<String, Map<String, Object>> inputResolutionOptions) throws IOException {
-        BufferedReader bufferedReader = new BufferedReader(new FileReader("./create-out.jsonl"));
+    private static void readOut(List<String> inputDids, Map<String, Map<String, Object>> inputResolutionOptions) throws IOException {
+        File createOutFile = new File("./create-out.jsonl");
+        File updateOutFile = new File("./update-out.jsonl");
+        if (updateOutFile.exists()) {
+            readOut(updateOutFile, inputDids, inputResolutionOptions);
+        } else if (createOutFile.exists()) {
+            readOut(createOutFile, inputDids, inputResolutionOptions);
+        } else {
+            throw new IOException("Create/Update Out file not found");
+        }
+    }
+
+    private static void readOut(File outFile, List<String> inputDids, Map<String, Map<String, Object>> inputResolutionOptions) throws IOException {
+        BufferedReader bufferedReader = new BufferedReader(new FileReader(outFile));
         String line;
         while ((line=bufferedReader.readLine()) != null) {
             if (line.startsWith("did:"))
@@ -73,6 +85,7 @@ public class MainUpdate {
             Map<String, Object> casAnnouncement = (Map<String, Object>) updateState.getDidDocumentMetadata().get("casAnnouncement");
             Map<String, Object> smtProof = (Map<String, Object>) updateState.getDidDocumentMetadata().get("smtProof");
             Map<String, Object> resolutionOptions = new HashMap<>(inputResolutionOptions.get(did));
+            resolutionOptions.computeIfPresent("versionId", (k, v) -> Integer.toString(Integer.parseInt((String) v)+1));
             Map<String, Object> sidecar = (Map<String, Object>) resolutionOptions.computeIfAbsent("sidecar", (key) -> new HashMap<>());
             if (update != null) {
                 List<Map<String, Object>> updates = (List<Map<String, Object>>) sidecar.computeIfAbsent("updates", (key) -> new LinkedList<>());

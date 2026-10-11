@@ -47,7 +47,7 @@ public class MainCreate {
             } while (COHORT_CAS.equals(COHORT_SMT));
             COHORTS_CAS.computeIfPresent(COHORT_CAS, (k, v) -> v - 1);
             COHORTS_SMT.computeIfPresent(COHORT_SMT, (k, v) -> v - 1);
-            COHORTS.put(i, List.of(COHORT_CAS));
+            COHORTS.put(i, List.of(COHORT_CAS, COHORT_SMT));
         }
     }
 
@@ -94,12 +94,17 @@ public class MainCreate {
 
     private static void resetFiles() {
         File file;
-        file = new File("./create-out.jsonl");
-        if (file.exists()) file.delete();
-        file = new File("./update-out.jsonl");
+        file = new File("./analyze-out-fund.csv");
         if (file.exists()) file.delete();
         file = new File("./keys.json");
         if (file.exists()) file.delete();
+        file = new File("./create-out.jsonl");
+        if (file.exists()) file.delete();
+        int updateI = 1;
+        do {
+            file = new File("./update-out-" + updateI + ".jsonl");
+            if (file.exists()) { file.delete(); updateI++; } else { file = null; }
+        } while (file != null);
     }
 
     private static void writeCreateOut(Collection<CreateState> createStates) throws IOException {

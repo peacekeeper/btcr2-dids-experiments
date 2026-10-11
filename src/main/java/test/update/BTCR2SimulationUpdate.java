@@ -5,6 +5,8 @@ import com.danubetech.kms.clientstateinterface.ClientStateInterface;
 import com.danubetech.kms.clientstateinterface.impl.memory.InMemoryClientStateInterface;
 import test.update.decideupdate.DecideUpdateStrategy;
 import test.update.generateoperation.GenerateOperationStrategy;
+import test.update.publishtoipfs.PublishToIpfsStrategy;
+import test.update.selectbeacon.SelectBeaconStrategy;
 import test.util.ExecutionUtil;
 import uniregistrar.openapi.model.RequestOptions;
 import uniregistrar.openapi.model.UpdateRequest;
@@ -25,7 +27,8 @@ public class BTCR2SimulationUpdate {
             List<String> dids,
             Map<String, Map<String, Object>> didResolutionOptions,
             int round,
-            String beaconServiceType,
+            SelectBeaconStrategy selectBeaconStrategy,
+            PublishToIpfsStrategy publishToIpfsStrategy,
             DecideUpdateStrategy decideUpdateStrategy,
             GenerateOperationStrategy generateOperationStrategy) throws Exception {
 
@@ -42,8 +45,8 @@ public class BTCR2SimulationUpdate {
             RequestOptions requestOptions = new RequestOptions();
             requestOptions.setClientSecretMode(Boolean.TRUE);
             requestOptions.putAdditionalProperty("resolutionOptions", resolutionOptions);
-            requestOptions.putAdditionalProperty("beaconServiceType", beaconServiceType);
-            requestOptions.putAdditionalProperty("publishToIpfs", Boolean.FALSE);
+            requestOptions.putAdditionalProperty("beaconServiceType", selectBeaconStrategy.selectBeacon());
+            requestOptions.putAdditionalProperty("publishToIpfs", publishToIpfsStrategy.publishToIpfs());
 
             UpdateRequest updateRequest = new UpdateRequest();
             updateRequest.setDid(did);

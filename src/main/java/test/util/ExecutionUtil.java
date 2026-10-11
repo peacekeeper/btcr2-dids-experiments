@@ -47,6 +47,8 @@ public class ExecutionUtil {
 
                 ExecutionUtil.submitIteration(executorService, clientKeyInterface, clientStateInterface, round, task, iteration+1, nextRequest.get(), future);
             } catch (Exception ex) {
+                System.err.println("ERROR IN TASK " + round + "/" + task + "/" + iteration + ": " + ex.getMessage());
+                ex.printStackTrace(System.err);
                 future.completeExceptionally(new RuntimeException(round + "/" + task + "/" + iteration + ": " + ex.getMessage(), ex));
             }
         }, random.nextInt(100), TimeUnit.MILLISECONDS);

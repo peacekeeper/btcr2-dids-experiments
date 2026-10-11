@@ -8,6 +8,10 @@ import test.update.decideupdate.DecideUpdateStrategy;
 import test.update.decideupdate.RandomDecideUpdateStrategy;
 import test.update.generateoperation.AddDWNServiceGenerateOperationStrategy;
 import test.update.generateoperation.GenerateOperationStrategy;
+import test.update.publishtoipfs.FalseublishIpfsStrategy;
+import test.update.publishtoipfs.PublishToIpfsStrategy;
+import test.update.selectbeacon.SMTSelectBeaconStrategy;
+import test.update.selectbeacon.SelectBeaconStrategy;
 import uniregistrar.openapi.model.UpdateState;
 
 import java.io.*;
@@ -21,7 +25,8 @@ import java.util.concurrent.ScheduledExecutorService;
 public class MainUpdate {
 
     static final int ROUNDS = 10;
-    static final String BEACON_SERVICE_TYPE = "CASBeacon";
+    static final SelectBeaconStrategy SELECT_BEACON_STRATEGY = new SMTSelectBeaconStrategy();
+    static final PublishToIpfsStrategy PUBLISH_TO_IPFS_STRATEGY = new FalseublishIpfsStrategy();
     static final DecideUpdateStrategy DECIDE_UPDATE_STRATEGY = new RandomDecideUpdateStrategy(0.25f);
     static final GenerateOperationStrategy GENERATE_OPERATION_STRATEGY = new AddDWNServiceGenerateOperationStrategy();
 
@@ -52,7 +57,8 @@ public class MainUpdate {
                     inputDids,
                     inputResolutionOptions,
                     round,
-                    BEACON_SERVICE_TYPE,
+                    SELECT_BEACON_STRATEGY,
+                    PUBLISH_TO_IPFS_STRATEGY,
                     DECIDE_UPDATE_STRATEGY,
                     GENERATE_OPERATION_STRATEGY);
 
@@ -74,6 +80,10 @@ public class MainUpdate {
             // write result to file
 
             writeUpdateOut(round, updateStates, inputResolutionOptions);
+
+            // pause before next round
+
+            Thread.sleep(60000);
         }
     }
 

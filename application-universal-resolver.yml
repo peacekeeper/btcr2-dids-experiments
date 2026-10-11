@@ -3,6 +3,7 @@ uniresolver:
     - pattern: "^(did:btcr2:.+)$"
       url: http://driver-did-btcr2.uni-resolver:8080/
       supportsOptions: true
+      supportsPost: true
       testIdentifiers:
         - did:btcr2:k1qypcylxwhf8sykn2dztm6z8lxm43kwkyzf07qmp9jafv3zfntmpwtks9hmnrw
         - did:btcr2:k1qypdnfyh7j8z87wk3vylqaz9t8psnkws8k5e2ccl9c0zqwwt5uyjeeg7f3knj

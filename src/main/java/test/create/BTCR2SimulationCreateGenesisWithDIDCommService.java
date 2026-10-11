@@ -14,7 +14,7 @@ import java.util.concurrent.*;
 
 public class BTCR2SimulationCreateGenesisWithDIDCommService {
 
-    public static Collection<CompletableFuture<CreateState>> create(ScheduledExecutorService executorService, ClientKeyInterface<?> clientKeyInterface, int number, String network, Map<Integer, List<String>> cohorts) throws Exception {
+    public static synchronized Collection<CompletableFuture<CreateState>> create(ScheduledExecutorService executorService, ClientKeyInterface<?> clientKeyInterface, int number, String network, Map<Integer, List<String>> cohorts) throws Exception {
 
         Collection<CompletableFuture<CreateState>> futures = new ArrayList<>();
 
@@ -39,7 +39,7 @@ public class BTCR2SimulationCreateGenesisWithDIDCommService {
 
             ClientStateInterface clientStateInterface = new InMemoryClientStateInterface();
 
-            ExecutionUtil.submitIteration(executorService, clientKeyInterface, clientStateInterface, task, 0, createRequest, future);
+            ExecutionUtil.submitIteration(executorService, clientKeyInterface, clientStateInterface, 0, task, 0, createRequest, future);
         }
 
         return futures;

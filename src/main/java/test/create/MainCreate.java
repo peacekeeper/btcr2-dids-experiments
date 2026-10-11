@@ -18,13 +18,9 @@ import java.util.concurrent.ScheduledExecutorService;
 
 public class MainCreate {
 
+    static final int NUMBER = 10;
     static final String NETWORK = "mutinynet";
-    static final int NUMBER = 100;
     static int COHORTS_AVERAGE_SIZE = 10;
-    /*static final String[] COHORTS = new String[] {
-            "cohort-" + NETWORK + "-smt-" + NUMBER + "*" + Math.abs(new Random().nextInt())
-            //"cohort-" + NETWORK + "-cas-" + NUMBER + "*" + Math.abs(new Random().nextInt())
-    };*/
 
     static final LinkedHashMap<String, Integer> COHORTS_CAS;
     static final LinkedHashMap<String, Integer> COHORTS_SMT;
@@ -41,7 +37,7 @@ public class MainCreate {
             COHORTS_CAS.put("cohort-" + NETWORK + "-cas-" + COHORT_SIZE + "*" + Math.abs(RANDOM.nextInt()), COHORT_SIZE);
             COHORTS_SMT.put("cohort-" + NETWORK + "-smt-" + COHORT_SIZE + "*" + Math.abs(RANDOM.nextInt()), COHORT_SIZE);
         }
-        for (int i=0; i<NUMBER; i++) {
+        for (int i = 0; i< NUMBER; i++) {
             List<String> COHORTS_CAS_LIST = new ArrayList<>(COHORTS_CAS.keySet());
             List<String> COHORTS_SMT_LIST = new ArrayList<>(COHORTS_SMT.keySet());
             String COHORT_CAS, COHORT_SMT;
@@ -51,24 +47,31 @@ public class MainCreate {
             } while (COHORT_CAS.equals(COHORT_SMT));
             COHORTS_CAS.computeIfPresent(COHORT_CAS, (k, v) -> v - 1);
             COHORTS_SMT.computeIfPresent(COHORT_SMT, (k, v) -> v - 1);
-            COHORTS.put(i, List.of(COHORT_CAS, COHORT_SMT));
+            COHORTS.put(i, List.of(COHORT_CAS));
         }
     }
 
     static ClientKeyInterface<ClientKey> clientKeyInterface = (ClientKeyInterface<ClientKey>) ClientKeyInterfaceFactory.clientKeyInterface(ClientKeyInterfaceFactory.KMSProvider.LOCAL_FILE, null, null, null, null);
 
-    static ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
     static JsonMapper jsonMapper = JsonMapper.builder().build();
 
     public static void main(String[] args) throws Exception {
 
         // reset
 
-        reset();
+        resetFiles();
 
         // execute
 
-        Collection<CompletableFuture<CreateState>> completableFutures = BTCR2SimulationCreateGenesisWithDIDCommService.create(executorService, clientKeyInterface, NUMBER, NETWORK, COHORTS);
+        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
+
+        Collection<CompletableFuture<CreateState>> completableFutures = BTCR2SimulationCreateGenesisWithDIDCommService.create(
+                executorService,
+                clientKeyInterface,
+                NUMBER,
+                NETWORK,
+                COHORTS);
+
         System.out.println("Waiting for " + completableFutures.size() + " results.");
         CompletableFuture.allOf(completableFutures.toArray(CompletableFuture[]::new)).join();
         Collection<CreateState> createStates = completableFutures.stream().map(CompletableFuture::join).toList();
@@ -89,7 +92,7 @@ public class MainCreate {
         writeCreateOut(createStates);
     }
 
-    private static void reset() {
+    private static void resetFiles() {
         File file;
         file = new File("./create-out.jsonl");
         if (file.exists()) file.delete();

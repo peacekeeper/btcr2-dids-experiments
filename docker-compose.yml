@@ -1,7 +1,7 @@
 services:
   danubetech-uni-registrar-web.uni-registrar:
     container_name: danubetech-uni-registrar-web
-    image: repo.danubetech.com:5000/universalregistrar/danubetech-uni-registrar-web:latest
+    image: universalregistrar/danubetech-uni-registrar-web:latest
     environment:
       uniregistrar_spring_config_additional_location: file:/opt/config/application.yml
     volumes:
@@ -10,7 +10,7 @@ services:
       - "9080:9080"
   danubetech-uni-resolver-web.uni-resolver:
     container_name: danubetech-uni-resolver-web
-    image: repo.danubetech.com:5000/universalresolver/danubetech-uni-resolver-web:latest
+    image: universalresolver/danubetech-uni-resolver-web:latest
     environment:
       uniresolver_spring_config_additional_location: file:/opt/config/application.yml
     volumes:

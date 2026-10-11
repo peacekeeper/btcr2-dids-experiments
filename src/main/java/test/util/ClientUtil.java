@@ -56,10 +56,12 @@ public class ClientUtil {
         return clientUniRegistrar;
     }
 
-    public static synchronized CreateState create(CreateRequest createRequest) throws RegistrationException, InterruptedException {
+    public static synchronized CreateState create(CreateRequest createRequest) throws InterruptedException, RegistrationException {
         while (true) {
             try {
                 return clientUniRegistrar().create("btcr2", createRequest);
+            } catch (RegistrationException ex) {
+                throw ex;
             } catch (Exception ex) {
                 System.out.println("Exception during create(): " + ex.getMessage());
                 Thread.sleep(new Random().nextInt(1000));
@@ -67,10 +69,12 @@ public class ClientUtil {
         }
     }
 
-    public static synchronized UpdateState update(UpdateRequest updateRequest) throws RegistrationException, InterruptedException {
+    public static synchronized UpdateState update(UpdateRequest updateRequest) throws InterruptedException, RegistrationException {
         while (true) {
             try {
                 return clientUniRegistrar().update("btcr2", updateRequest);
+            } catch (RegistrationException ex) {
+                throw ex;
             } catch (Exception ex) {
                 System.out.println("Exception during update(): " + ex.getMessage());
                 Thread.sleep(new Random().nextInt(1000));

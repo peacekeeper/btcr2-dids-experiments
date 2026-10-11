@@ -18,9 +18,9 @@ public class ExecutionUtil {
 
     private static final Random random = new Random();
 
-    public static <R extends RegistrarRequest, S extends RegistrarState> void submitIteration(ScheduledExecutorService executorService, ClientKeyInterface<?> clientKeyInterface, ClientStateInterface clientStateInterface, final Object task, final int iteration, final R registrarRequest, final CompletableFuture<S> future) throws Exception {
+    public static <R extends RegistrarRequest, S extends RegistrarState> void submitIteration(ScheduledExecutorService executorService, ClientKeyInterface<?> clientKeyInterface, ClientStateInterface clientStateInterface, final int round, final Object task, final int iteration, final R registrarRequest, final CompletableFuture<S> future) throws Exception {
 
-        System.out.println("Submitting iteration: " + task + "/" + iteration);
+        System.out.println("Submitting iteration: " + round + "/" + task + "/" + iteration);
 
         executorService.schedule(() -> {
 
@@ -31,7 +31,7 @@ public class ExecutionUtil {
                     case UpdateRequest updateRequest -> ClientUtil.update(updateRequest);
                     default -> throw new IllegalStateException("Unexpected value: " + registrarRequest);
                 };
-                System.out.println(task + "/" + iteration + ": " + StateUtil.stateToString(registrarState));
+                System.out.println(round + "/" + task + "/" + iteration + ": " + StateUtil.stateToString(registrarState));
                 System.out.println(StateUtil.stateStats(task, registrarState));
 
                 Optional<RegistrarRequest> nextRequest = InternalSecretMode.handleState(registrarRequest, registrarState, clientKeyInterface, clientStateInterface);
@@ -45,9 +45,9 @@ public class ExecutionUtil {
                     nextRequest = Optional.of(registrarRequest);
                 }
 
-                ExecutionUtil.submitIteration(executorService, clientKeyInterface, clientStateInterface, task, iteration+1, nextRequest.get(), future);
+                ExecutionUtil.submitIteration(executorService, clientKeyInterface, clientStateInterface, round, task, iteration+1, nextRequest.get(), future);
             } catch (Exception ex) {
-                future.completeExceptionally(new RuntimeException(task + "/" + iteration + ": " + ex.getMessage(), ex));
+                future.completeExceptionally(new RuntimeException(round + "/" + task + "/" + iteration + ": " + ex.getMessage(), ex));
             }
         }, random.nextInt(100), TimeUnit.MILLISECONDS);
     }

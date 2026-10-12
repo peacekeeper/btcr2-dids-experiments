@@ -1,4 +1,4 @@
-# Analysis: Data Set 1
+# `did:btcr2` - Data Set 1
 
 ## Basic dataset information
 
@@ -8,7 +8,20 @@
 
 **Total beacon types:** {SMTBeacon=25, SingletonBeacon=75, CASBeacon=25}
 
-**Total cohort types and sizes:** {cohort-mutinynet-cas-5*914489003=cas=5, cohort-mutinynet-smt-4*1313926177=smt=4, cohort-mutinynet-smt-5*1558620337=smt=5, cohort-mutinynet-smt-5*261042241=smt=5, cohort-mutinynet-cas-3*1281328863=cas=3, cohort-mutinynet-cas-7*1215244637=cas=7, cohort-mutinynet-smt-5*285767441=smt=5, cohort-mutinynet-smt-6*1459988450=smt=6, cohort-mutinynet-cas-9*729704740=cas=9, cohort-mutinynet-cas-1*1337910826=cas=1}
+**Total cohort types and sizes:**
+
+| Cohort                              | Type  | Size |
+|:------------------------------------|:-----:|:-----|
+| `cohort-mutinynet-cas-5*914489003`  | `cas` | 5    |
+| `cohort-mutinynet-smt-4*1313926177` | `smt` | 4    |
+| `cohort-mutinynet-smt-5*1558620337` | `smt` | 5    |
+| `cohort-mutinynet-smt-5*261042241`  | `smt` | 5    |
+| `cohort-mutinynet-cas-3*1281328863` | `cas` | 3    |
+| `cohort-mutinynet-cas-7*1215244637` | `cas` | 7    |
+| `cohort-mutinynet-smt-5*285767441`  | `smt` | 5    |
+| `cohort-mutinynet-smt-6*1459988450` | `smt` | 6    |
+| `cohort-mutinynet-cas-9*729704740`  | `cas` | 9    |
+| `cohort-mutinynet-cas-1*1337910826` | `cas` | 1    |
 
 ## Updates
 
@@ -26,17 +39,19 @@
 
 **Actual updates by beacon types:** {SingletonBeacon=0, SMTBeacon=19, CASBeacon=41}
 
+![Analysis - Actual updates by beacon types](./Analysis-Actual-updates-by-beacon-types.png)
+
 **Actual update operations:** {add=48, replace=13, remove=4}
+
+![Analysis - Actual update operation counts](./Analysis-Actual-update-operation-counts.png)
 
 **Actual update sizes:** 1076,928,1077,956,1026,1146,931,931,1073,1072,987,932,1077,1077,927,883,932,883,928,1026,928,1073,1094,932,928,1025,931,928,1073,1077,1124,928,1073,1073,1073,928,1026,883,932,932,952,883,1073,928,1073,932,883,932,1073,1073,1073,1073,1026,1073,928,1073,987,1077,1093,1073
 
-![Analysis - Actual updates by beacon types](./Analysis-Actual-updates-by-beacon-types.png)
-![Analysis - Actual update operation counts](./Analysis-Actual-update-operation-counts.png)
 ![Analysis - Actual update sizes](./Analysis-Actual-update-sizes.png)
 
 ## Updates: Details
 
-Actual updates by round by DID:
+**Actual updates by round by DID:**
 
 ```
 did:btcr2:x1qh6zcyn4cujckjvw3e2xavq0tmqekakc7ztvan3zlcnn3nn0arp0gqxhxhs -> . . . . O . . . O O (3)

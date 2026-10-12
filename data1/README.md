@@ -12,7 +12,7 @@
 
 ## Updates
 
-**Update probability per DID per round:** 0.25 (true), 1.0 (false)
+**Update probabilities per DID per round:** 0.25 (true), 1.0 (false)
 
 **Actual update count:** 60
 

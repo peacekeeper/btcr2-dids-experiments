@@ -172,7 +172,7 @@ public class AnalyzeUpdate {
         System.out.println("Number of update rounds: " + updateRoundsCount);
         System.out.println("Total beacon types: " + beaconTypeCounts);
         System.out.println("Total cohort types and sizes: " + cohortTypesAndSizes);
-        System.out.println("Update probability per DID per round: " + MainUpdate.DECIDE_UPDATE_STRATEGY);
+        System.out.println("Update probabilities per DID per round: " + MainUpdate.DECIDE_UPDATE_STRATEGY);
         System.out.println("Actual update count: " + totalUpdates);
         System.out.println("Actual update counts by round: " + updatesByRound.stream().map(i -> Integer.toString(i)).collect(Collectors.joining(",")));
         System.out.println("Beacon type probabilities per update: " + MainUpdate.SELECT_BEACON_STRATEGY);

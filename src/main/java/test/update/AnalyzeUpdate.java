@@ -177,9 +177,9 @@ public class AnalyzeUpdate {
         System.out.println("Actual update counts by round: " + updatesByRound.stream().map(i -> Integer.toString(i)).collect(Collectors.joining(",")));
         System.out.println("Beacon type probabilities per update: " + MainUpdate.SELECT_BEACON_STRATEGY);
         System.out.println("Actual updates by beacon types: " + updatesByBeaconTypes);
+        System.out.println("Actual update operations: " + updateOperations);
+        System.out.println("Actual update sizes: " + updateSizes.stream().map(i -> Integer.toString(i)).collect(Collectors.joining(",")));
         System.out.println("Actual updates by round by DID: ");
-        System.out.println("Actual update operation counts: " + updateOperations);
-        System.out.println("Actual update sizes: " + updateSizes);
         for (String createdDid : createdDids) {
             System.out.println(createdDid + " -> " + updatesByRoundByDid.get(createdDid).values().stream().map(b -> b ? "O" : ".").collect(Collectors.joining(" ")) + " (" + updatesByDid.get(createdDid) + ")");
         }

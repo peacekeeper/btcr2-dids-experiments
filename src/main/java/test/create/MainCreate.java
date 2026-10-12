@@ -18,9 +18,9 @@ import java.util.concurrent.ScheduledExecutorService;
 
 public class MainCreate {
 
-    static final int NUMBER = 25;
+    static final int NUMBER = 100;
     static final String NETWORK = "mutinynet";
-    static int COHORTS_AVERAGE_SIZE = 5;
+    static int COHORTS_AVERAGE_SIZE = 10;
 
     static final LinkedHashMap<String, Integer> COHORTS_CAS;
     static final LinkedHashMap<String, Integer> COHORTS_SMT;
@@ -28,14 +28,27 @@ public class MainCreate {
     static final Map<Integer, List<String>> COHORTS = new HashMap<>();
 
     static {
-        int COHORTS_NUMBER = NUMBER / COHORTS_AVERAGE_SIZE;
         Random RANDOM = new Random();
+        int COHORTS_NUMBER = NUMBER / COHORTS_AVERAGE_SIZE;
+        int[] COHORT_SIZES_CAS = new int[COHORTS_NUMBER];
+        int[] COHORT_SIZES_SMT = new int[COHORTS_NUMBER];
+        Arrays.fill(COHORT_SIZES_CAS, COHORTS_AVERAGE_SIZE);
+        Arrays.fill(COHORT_SIZES_SMT, COHORTS_AVERAGE_SIZE);
+        for (int i=0; i<COHORTS_NUMBER/2; i++) {
+            int CHANGE_CAS; do { CHANGE_CAS = (int) Math.round(RANDOM.nextGaussian() * 2); } while (COHORTS_AVERAGE_SIZE + CHANGE_CAS < 2);
+            int CHANGE_SMT; do { CHANGE_SMT = (int) Math.round(RANDOM.nextGaussian() * 2); } while (COHORTS_AVERAGE_SIZE + CHANGE_SMT < 2);
+            COHORT_SIZES_CAS[2*i] += CHANGE_CAS;
+            COHORT_SIZES_CAS[2*i+1] -= CHANGE_CAS;
+            COHORT_SIZES_SMT[2*i] += CHANGE_SMT;
+            COHORT_SIZES_SMT[2*i+1] -= CHANGE_SMT;
+        }
         COHORTS_CAS = new LinkedHashMap<>(COHORTS_NUMBER);
         COHORTS_SMT = new LinkedHashMap<>(COHORTS_NUMBER);
         for (int i=0; i<COHORTS_NUMBER; i++) {
-            int COHORT_SIZE = COHORTS_AVERAGE_SIZE;
-            COHORTS_CAS.put("cohort-" + NETWORK + "-cas-" + COHORT_SIZE + "*" + Math.abs(RANDOM.nextInt()), COHORT_SIZE);
-            COHORTS_SMT.put("cohort-" + NETWORK + "-smt-" + COHORT_SIZE + "*" + Math.abs(RANDOM.nextInt()), COHORT_SIZE);
+            int COHORT_SIZE_CAS = COHORT_SIZES_CAS[i];
+            int COHORT_SIZE_SMT = COHORT_SIZES_SMT[i];
+            COHORTS_CAS.put("cohort-" + NETWORK + "-cas-" + COHORT_SIZE_CAS + "*" + Math.abs(RANDOM.nextInt()), COHORT_SIZE_CAS);
+            COHORTS_SMT.put("cohort-" + NETWORK + "-smt-" + COHORT_SIZE_SMT + "*" + Math.abs(RANDOM.nextInt()), COHORT_SIZE_SMT);
         }
         for (int i=0; i<NUMBER; i++) {
             List<String> COHORTS_CAS_LIST = new ArrayList<>(COHORTS_CAS.keySet());
@@ -49,6 +62,8 @@ public class MainCreate {
             COHORTS_SMT.computeIfPresent(COHORT_SMT, (k, v) -> v - 1);
             COHORTS.put(i, List.of(COHORT_CAS, COHORT_SMT));
         }
+        System.out.println("CAS cohorts: " + COHORTS_CAS.keySet());
+        System.out.println("SMT cohorts: " + COHORTS_SMT.keySet());
     }
 
     static ClientKeyInterface<ClientKey> clientKeyInterface = (ClientKeyInterface<ClientKey>) ClientKeyInterfaceFactory.clientKeyInterface(ClientKeyInterfaceFactory.KMSProvider.LOCAL_FILE, null, null, null, null);
@@ -120,6 +135,7 @@ public class MainCreate {
             printWriter.println(did);
             printWriter.println(jsonMapper.writeValueAsString(resolutionOptions));
         }
+        printWriter.flush();
         printWriter.close();
     }
 }

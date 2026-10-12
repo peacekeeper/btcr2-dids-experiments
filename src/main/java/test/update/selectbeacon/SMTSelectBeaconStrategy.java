@@ -6,4 +6,9 @@ public class SMTSelectBeaconStrategy implements SelectBeaconStrategy {
     public String selectBeacon() {
         return "SMTBeacon";
     }
+
+    @Override
+    public String toString() {
+        return "SMTBeacon";
+    }
 }

@@ -6,4 +6,9 @@ public class TrueDecideUpdateStrategy implements DecideUpdateStrategy {
     public boolean decideUpdate() {
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "true";
+    }
 }

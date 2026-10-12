@@ -6,4 +6,9 @@ public class CASSelectBeaconStrategy implements SelectBeaconStrategy {
     public String selectBeacon() {
         return "CASBeacon";
     }
+
+    @Override
+    public String toString() {
+        return "CASBeacon";
+    }
 }

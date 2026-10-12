@@ -3,14 +3,15 @@ package test.create;
 import com.danubetech.kms.clientkeyinterface.ClientKeyInterface;
 import com.danubetech.kms.clientstateinterface.ClientStateInterface;
 import com.danubetech.kms.clientstateinterface.impl.memory.InMemoryClientStateInterface;
-import com.danubetech.uniregistrar.local.internalsecretmode.InternalSecretMode;
-import test.util.ClientUtil;
 import test.util.ExecutionUtil;
-import test.util.StateUtil;
-import uniregistrar.openapi.model.*;
+import uniregistrar.openapi.model.CreateRequest;
+import uniregistrar.openapi.model.CreateState;
+import uniregistrar.openapi.model.DidDocument;
+import uniregistrar.openapi.model.RequestOptions;
 
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ScheduledExecutorService;
 
 public class BTCR2SimulationCreateGenesisWithDIDCommService {
 

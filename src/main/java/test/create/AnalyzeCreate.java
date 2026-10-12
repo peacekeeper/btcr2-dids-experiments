@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import foundation.identity.did.DIDDocumentV1_1;
 import foundation.identity.did.Service;
 import foundation.identity.jsonld.JsonLDUtils;
-import uniregistrar.openapi.model.CreateState;
 
 import java.io.*;
 import java.net.URI;
@@ -15,7 +14,7 @@ import java.util.Map;
 
 public class AnalyzeCreate {
 
-    static int FUNDING = 1000;
+    static int FUNDING = 3000;
 
     static JsonMapper jsonMapper = JsonMapper.builder().build();
 
@@ -23,10 +22,10 @@ public class AnalyzeCreate {
 
         // read input
 
-        List<String> inputDids = new ArrayList<>();
-        Map<String, Map<String, Object>> inputResolutionOptions = new HashMap<>();
-        readCreateOut(inputDids, inputResolutionOptions);
-        System.out.println("inputDids: " + inputDids);
+        List<String> createdDids = new ArrayList<>();
+        Map<String, Map<String, Object>> createdResolutionOptions = new HashMap<>();
+        readCreateOut(createdDids, createdResolutionOptions);
+        System.out.println("createdDids: " + createdDids);
 
         // analyze
 
@@ -34,7 +33,7 @@ public class AnalyzeCreate {
         Map<String, List<String>> smtBeacons = new HashMap<>();
         Map<String, List<String>> beacons = new HashMap<>();
 
-        inputResolutionOptions.forEach((did, resolutionOptions) -> {
+        createdResolutionOptions.forEach((did, resolutionOptions) -> {
             DIDDocumentV1_1 didDocumentV11 = DIDDocumentV1_1.fromMap((Map<String, Object>) ((Map<String, Object>) resolutionOptions.get("sidecar")).get("genesisDocument"));
             for (Service service : didDocumentV11.getServices()) {
                 String type = service.getType();
@@ -62,14 +61,14 @@ public class AnalyzeCreate {
         printWriter.close();
     }
 
-    private static void readCreateOut(List<String> inputDids, Map<String, Map<String, Object>> inputResolutionOptions) throws IOException {
+    private static void readCreateOut(List<String> createdDids, Map<String, Map<String, Object>> createdResolutionOptions) throws IOException {
         BufferedReader bufferedReader = new BufferedReader(new FileReader("./create-out.jsonl"));
         String line;
         while ((line=bufferedReader.readLine()) != null) {
             if (line.startsWith("did:"))
-                inputDids.add(line);
+                createdDids.add(line);
             else
-                inputResolutionOptions.put(inputDids.get(inputDids.size()-1), jsonMapper.readValue(line, Map.class));
+                createdResolutionOptions.put(createdDids.getLast(), jsonMapper.readValue(line, Map.class));
         }
         bufferedReader.close();
     }

@@ -6,7 +6,6 @@ import com.danubetech.kms.clientstateinterface.impl.memory.InMemoryClientStateIn
 import test.update.decideupdate.DecideUpdateStrategy;
 import test.update.generateoperation.GenerateOperationStrategy;
 import test.update.publishtoipfs.PublishToIpfsStrategy;
-import test.update.selectbeacon.SelectBeaconStrategy;
 import test.util.ExecutionUtil;
 import uniregistrar.openapi.model.RequestOptions;
 import uniregistrar.openapi.model.UpdateRequest;

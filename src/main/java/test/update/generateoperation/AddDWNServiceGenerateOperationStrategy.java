@@ -1,8 +1,10 @@
 package test.update.generateoperation;
 
+import foundation.identity.did.Service;
 import uniregistrar.openapi.model.DidDocument;
 import uniregistrar.openapi.model.UpdateRequest;
 
+import java.net.URI;
 import java.util.Map;
 import java.util.UUID;
 
@@ -17,10 +19,11 @@ public class AddDWNServiceGenerateOperationStrategy implements GenerateOperation
     }
 
     private static Map<String, Object> service() {
-        return Map.of(
-                "id", "#dwn",
-                "type", "DecentralizedWebNode",
-                "serviceEndpoint", "https://example.com/dwn/" + UUID.randomUUID()
-        );
+        return Service.builder()
+                .id(URI.create("#dwn"))
+                .type("DecentralizedWebNode")
+                .serviceEndpoint(URI.create("https://example.com/dwn/" + UUID.randomUUID().toString()))
+                .build()
+                .toMap();
     }
 }

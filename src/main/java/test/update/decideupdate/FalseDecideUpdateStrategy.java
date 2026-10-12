@@ -6,4 +6,9 @@ public class FalseDecideUpdateStrategy implements DecideUpdateStrategy {
     public boolean decideUpdate() {
         return false;
     }
+
+    @Override
+    public String toString() {
+        return "false";
+    }
 }

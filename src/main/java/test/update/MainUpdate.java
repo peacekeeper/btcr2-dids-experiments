@@ -4,14 +4,14 @@ import com.danubetech.kms.clientkeyinterface.ClientKey;
 import com.danubetech.kms.clientkeyinterface.ClientKeyInterface;
 import com.danubetech.kms.clientkeyinterface.ClientKeyInterfaceFactory;
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import org.bouncycastle.jcajce.provider.symmetric.SM4;
-import test.update.decideupdate.TrueDecideUpdateStrategy;
 import test.update.decideupdate.DecideUpdateStrategy;
 import test.update.decideupdate.FalseDecideUpdateStrategy;
 import test.update.decideupdate.RandomDecideUpdateStrategy;
-import test.update.generateoperation.AddDWNServiceGenerateOperationStrategy;
+import test.update.decideupdate.TrueDecideUpdateStrategy;
 import test.update.generateoperation.GenerateOperationStrategy;
-import test.update.generateoperation.UpdateDIDCommServiceGenerateOperationStrategy;
+import test.update.generateoperation.RandomGenerateOperationStrategy;
+import test.update.generateoperation.UpdateMyKeyVerificationMethodGenerateOperationStrategy;
+import test.update.generateoperation.UpdateMyServiceGenerateOperationStrategy;
 import test.update.publishtoipfs.FalsePublishIpfsStrategy;
 import test.update.publishtoipfs.PublishToIpfsStrategy;
 import test.update.selectbeacon.CASSelectBeaconStrategy;
@@ -30,11 +30,20 @@ import java.util.concurrent.ScheduledExecutorService;
 
 public class MainUpdate {
 
-    static final int ROUNDS = 10;
-    static final SelectBeaconStrategy SELECT_BEACON_STRATEGY = new RandomSelectBeaconStrategy(0.25f, List.of(new SMTSelectBeaconStrategy(), new CASSelectBeaconStrategy()));
+    static final int ROUNDS = 20;
+    static final SelectBeaconStrategy SELECT_BEACON_STRATEGY = new RandomSelectBeaconStrategy(List.of(0.25f, 1.0f), List.of(
+            new SMTSelectBeaconStrategy(),
+            new CASSelectBeaconStrategy()
+    ));
     static final PublishToIpfsStrategy PUBLISH_TO_IPFS_STRATEGY = new FalsePublishIpfsStrategy();
-    static final DecideUpdateStrategy DECIDE_UPDATE_STRATEGY = new RandomDecideUpdateStrategy(0.25f, List.of(new TrueDecideUpdateStrategy(), new FalseDecideUpdateStrategy()));
-    static final GenerateOperationStrategy GENERATE_OPERATION_STRATEGY = new UpdateDIDCommServiceGenerateOperationStrategy();
+    static final DecideUpdateStrategy DECIDE_UPDATE_STRATEGY = new RandomDecideUpdateStrategy(List.of(0.25f, 1.0f), List.of(
+            new TrueDecideUpdateStrategy(),
+            new FalseDecideUpdateStrategy()
+    ));
+    static final GenerateOperationStrategy GENERATE_OPERATION_STRATEGY = new RandomGenerateOperationStrategy(List.of(0.5f, 1.0f), List.of(
+            new UpdateMyServiceGenerateOperationStrategy(2),
+            new UpdateMyKeyVerificationMethodGenerateOperationStrategy(3)
+    ));
 
     static ClientKeyInterface<?> clientKeyInterface = ClientKeyInterfaceFactory.clientKeyInterface(ClientKeyInterfaceFactory.KMSProvider.LOCAL_FILE, null, null, null, null);
 
@@ -143,6 +152,7 @@ public class MainUpdate {
             printWriter.println(did);
             printWriter.println(jsonMapper.writeValueAsString(resolutionOptions));
         }
+        printWriter.flush();
         printWriter.close();
     }
 }

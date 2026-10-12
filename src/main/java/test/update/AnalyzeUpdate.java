@@ -89,12 +89,12 @@ public class AnalyzeUpdate {
                     });
                 });
 
-        // count updates by round
+        // count updates per round
         // count updates by DID
         // yes/no updates by round by DID
 
-        List<Integer> updatesByRound = new ArrayList<>();
-        for (int round=0; round<updatedDidsRounds.size(); round++) updatesByRound.add( 0);
+        List<Integer> updatesPerRound = new ArrayList<>();
+        for (int round=0; round<updatedDidsRounds.size(); round++) updatesPerRound.add( 0);
 
         Map<String, Integer> updatesByDid = new HashMap<>();
         for (String did : createdDids) updatesByDid.put(did, 0);
@@ -112,7 +112,7 @@ public class AnalyzeUpdate {
                 Map<String, Object> resolutionOptions = updatedResolutionOptionsEntry.getValue();
                 int versionId = Integer.parseInt((String) resolutionOptions.get("versionId"));
                 if (versionId > lastVersionId.computeIfAbsent(did, (k) -> 1)) {
-                    updatesByRound.set(round, updatesByRound.get(round) + 1);
+                    updatesPerRound.set(round, updatesPerRound.get(round) + 1);
                     updatesByDid.computeIfPresent(did, (k, v) -> v+1);
                     updatesByRoundByDid.get(did).put(round, Boolean.TRUE);
                     lastVersionId.put(did, versionId);
@@ -169,15 +169,15 @@ public class AnalyzeUpdate {
         System.out.println("Number of DIDs: " + didsCount);
         System.out.println("Number of update rounds: " + updateRoundsCount);
         System.out.println("Total beacon types: " + beaconTypeCounts);
-        System.out.println("Total cohort types and sizes: " + cohortTypesAndSizes);
-        System.out.println("Update probabilities per DID per round: " + MainUpdate.DECIDE_UPDATE_STRATEGY);
+        System.out.println("Total aggregation cohort types and sizes: " + cohortTypesAndSizes);
+        System.out.println("Update probabilities per round per DID: " + MainUpdate.DECIDE_UPDATE_STRATEGY);
         System.out.println("Actual update count: " + totalUpdates);
-        System.out.println("Actual update counts by round: " + updatesByRound.stream().map(i -> Integer.toString(i)).collect(Collectors.joining(",")));
+        System.out.println("Actual update counts per round: " + updatesPerRound.stream().map(i -> Integer.toString(i)).collect(Collectors.joining(",")));
         System.out.println("Beacon type probabilities per update: " + MainUpdate.SELECT_BEACON_STRATEGY);
         System.out.println("Actual updates by beacon types: " + updatesByBeaconTypes);
         System.out.println("Actual update operations: " + updateOperations);
         System.out.println("Actual update sizes: " + updateSizes.stream().map(i -> Integer.toString(i)).collect(Collectors.joining(",")));
-        System.out.println("Actual updates by round by DID: ");
+        System.out.println("Actual updates per round per DID: ");
         for (String createdDid : createdDids) {
             System.out.println(createdDid + " -> " + updatesByRoundByDid.get(createdDid).values().stream().map(b -> b ? "O" : ".").collect(Collectors.joining(" ")) + " (" + updatesByDid.get(createdDid) + ")");
         }

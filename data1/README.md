@@ -8,9 +8,9 @@
 
 **Total beacon types:** {SMTBeacon=25, SingletonBeacon=75, CASBeacon=25}
 
-**Total cohort types and sizes:**
+**Total aggregation cohort types and sizes:**
 
-| Cohort                              | Type  | Size |
+| Aggregation Cohort                  | Type  | Size |
 |:------------------------------------|:-----:|:-----|
 | `cohort-mutinynet-cas-5*914489003`  | `cas` | 5    |
 | `cohort-mutinynet-smt-4*1313926177` | `smt` | 4    |
@@ -25,13 +25,13 @@
 
 ## Updates
 
-**Update probabilities per DID per round:** 0.25 (true), 1.0 (false)
+**Update probabilities per round per DID:** 0.25 (true), 1.0 (false)
 
 **Actual update count:** 60
 
-**Actual update counts by round:** 6,6,4,5,5,5,6,7,8,8
+**Actual update counts per round:** 6,6,4,5,5,5,6,7,8,8
 
-![Analysis - Actual update counts by round](./Analysis-Actual-update-counts-by-round.png)
+![Analysis - Actual update counts per round](Analysis-Actual-update-counts-per-round.png)
 
 ## Updates: Beacons, Operations, Sizes
 
@@ -51,7 +51,7 @@
 
 ## Updates: Details
 
-**Actual updates by round by DID:**
+**Actual updates per round per DID:**
 
 ```
 did:btcr2:x1qh6zcyn4cujckjvw3e2xavq0tmqekakc7ztvan3zlcnn3nn0arp0gqxhxhs -> . . . . O . . . O O (3)

@@ -4,8 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import foundation.identity.did.DIDDocument;
 import foundation.identity.did.Service;
-import test.update.decideupdate.RandomDecideUpdateStrategy;
-import test.update.selectbeacon.RandomSelectBeaconStrategy;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -71,7 +69,7 @@ public class AnalyzeUpdate {
             matcher.matches();
             String cohortType = matcher.group(2);
             Integer cohortSize = Integer.parseInt(matcher.group(3));
-            cohortTypesAndSizes.put(cohort,  new AbstractMap.SimpleEntry<>(cohortType, cohortSize));
+            cohortTypesAndSizes.put(cohort, new AbstractMap.SimpleEntry<>(cohortType, cohortSize));
         }
 
         // count beacons by type

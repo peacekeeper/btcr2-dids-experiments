@@ -4,12 +4,18 @@ import com.danubetech.kms.clientkeyinterface.ClientKey;
 import com.danubetech.kms.clientkeyinterface.ClientKeyInterface;
 import com.danubetech.kms.clientkeyinterface.ClientKeyInterfaceFactory;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import org.bouncycastle.jcajce.provider.symmetric.SM4;
+import test.update.decideupdate.TrueDecideUpdateStrategy;
 import test.update.decideupdate.DecideUpdateStrategy;
+import test.update.decideupdate.FalseDecideUpdateStrategy;
 import test.update.decideupdate.RandomDecideUpdateStrategy;
 import test.update.generateoperation.AddDWNServiceGenerateOperationStrategy;
 import test.update.generateoperation.GenerateOperationStrategy;
-import test.update.publishtoipfs.FalseublishIpfsStrategy;
+import test.update.generateoperation.UpdateDIDCommServiceGenerateOperationStrategy;
+import test.update.publishtoipfs.FalsePublishIpfsStrategy;
 import test.update.publishtoipfs.PublishToIpfsStrategy;
+import test.update.selectbeacon.CASSelectBeaconStrategy;
+import test.update.selectbeacon.RandomSelectBeaconStrategy;
 import test.update.selectbeacon.SMTSelectBeaconStrategy;
 import test.update.selectbeacon.SelectBeaconStrategy;
 import uniregistrar.openapi.model.UpdateState;
@@ -25,10 +31,10 @@ import java.util.concurrent.ScheduledExecutorService;
 public class MainUpdate {
 
     static final int ROUNDS = 10;
-    static final SelectBeaconStrategy SELECT_BEACON_STRATEGY = new SMTSelectBeaconStrategy();
-    static final PublishToIpfsStrategy PUBLISH_TO_IPFS_STRATEGY = new FalseublishIpfsStrategy();
-    static final DecideUpdateStrategy DECIDE_UPDATE_STRATEGY = new RandomDecideUpdateStrategy(0.25f);
-    static final GenerateOperationStrategy GENERATE_OPERATION_STRATEGY = new AddDWNServiceGenerateOperationStrategy();
+    static final SelectBeaconStrategy SELECT_BEACON_STRATEGY = new RandomSelectBeaconStrategy(0.25f, List.of(new SMTSelectBeaconStrategy(), new CASSelectBeaconStrategy()));
+    static final PublishToIpfsStrategy PUBLISH_TO_IPFS_STRATEGY = new FalsePublishIpfsStrategy();
+    static final DecideUpdateStrategy DECIDE_UPDATE_STRATEGY = new RandomDecideUpdateStrategy(0.25f, List.of(new TrueDecideUpdateStrategy(), new FalseDecideUpdateStrategy()));
+    static final GenerateOperationStrategy GENERATE_OPERATION_STRATEGY = new UpdateDIDCommServiceGenerateOperationStrategy();
 
     static ClientKeyInterface<?> clientKeyInterface = ClientKeyInterfaceFactory.clientKeyInterface(ClientKeyInterfaceFactory.KMSProvider.LOCAL_FILE, null, null, null, null);
 
@@ -51,13 +57,15 @@ public class MainUpdate {
 
             ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
 
+            String selectBeacon = SELECT_BEACON_STRATEGY.selectBeacon();
+
             Collection<CompletableFuture<UpdateState>> completableFutures = BTCR2SimulationUpdate.update(
                     executorService,
                     clientKeyInterface,
                     inputDids,
                     inputResolutionOptions,
                     round,
-                    SELECT_BEACON_STRATEGY,
+                    selectBeacon,
                     PUBLISH_TO_IPFS_STRATEGY,
                     DECIDE_UPDATE_STRATEGY,
                     GENERATE_OPERATION_STRATEGY);

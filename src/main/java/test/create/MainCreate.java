@@ -18,9 +18,9 @@ import java.util.concurrent.ScheduledExecutorService;
 
 public class MainCreate {
 
-    static final int NUMBER = 10;
+    static final int NUMBER = 25;
     static final String NETWORK = "mutinynet";
-    static int COHORTS_AVERAGE_SIZE = 10;
+    static int COHORTS_AVERAGE_SIZE = 5;
 
     static final LinkedHashMap<String, Integer> COHORTS_CAS;
     static final LinkedHashMap<String, Integer> COHORTS_SMT;
@@ -37,7 +37,7 @@ public class MainCreate {
             COHORTS_CAS.put("cohort-" + NETWORK + "-cas-" + COHORT_SIZE + "*" + Math.abs(RANDOM.nextInt()), COHORT_SIZE);
             COHORTS_SMT.put("cohort-" + NETWORK + "-smt-" + COHORT_SIZE + "*" + Math.abs(RANDOM.nextInt()), COHORT_SIZE);
         }
-        for (int i = 0; i< NUMBER; i++) {
+        for (int i=0; i<NUMBER; i++) {
             List<String> COHORTS_CAS_LIST = new ArrayList<>(COHORTS_CAS.keySet());
             List<String> COHORTS_SMT_LIST = new ArrayList<>(COHORTS_SMT.keySet());
             String COHORT_CAS, COHORT_SMT;

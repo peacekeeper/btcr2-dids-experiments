@@ -1,6 +1,6 @@
 package test.update.decideupdate;
 
-public class AlwaysDecideUpdateStrategy implements DecideUpdateStrategy {
+public class TrueDecideUpdateStrategy implements DecideUpdateStrategy {
 
     @Override
     public boolean decideUpdate() {

@@ -1,6 +1,6 @@
 package test.update.publishtoipfs;
 
-public class FalseublishIpfsStrategy implements PublishToIpfsStrategy {
+public class FalsePublishIpfsStrategy implements PublishToIpfsStrategy {
 
     @Override
     public boolean publishToIpfs() {

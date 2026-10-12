@@ -6,7 +6,3 @@
 /.idea/
 *.iml
 keys.json
-create-out*
-update-out*
-deactivate-out*
-analyze-out*

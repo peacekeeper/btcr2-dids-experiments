@@ -1,17 +1,69 @@
 # `did:btcr2` - Data Set 2
 
-Number of DIDs: 100
-Number of update rounds: 15
-Total beacon types: {SMTBeacon=100, CASBeacon=100, SingletonBeacon=300}
-Total cohort types and sizes: {cohort-mutinynet-cas-7*1454904523=cas=7, cohort-mutinynet-smt-13*733018335=smt=13, cohort-mutinynet-smt-12*691463090=smt=12, cohort-mutinynet-cas-12*504956234=cas=12, cohort-mutinynet-cas-10*1726411591=cas=10, cohort-mutinynet-smt-8*58075060=smt=8, cohort-mutinynet-smt-12*1089005101=smt=12, cohort-mutinynet-cas-12*698097571=cas=12, cohort-mutinynet-cas-10*269844304=cas=10, cohort-mutinynet-cas-8*1947417726=cas=8, cohort-mutinynet-smt-7*1896204105=smt=7, cohort-mutinynet-cas-9*1932059088=cas=9, cohort-mutinynet-smt-11*1277189404=smt=11, cohort-mutinynet-smt-12*508150187=smt=12, cohort-mutinynet-cas-11*1550232856=cas=11, cohort-mutinynet-smt-8*2075421493=smt=8, cohort-mutinynet-smt-9*1687143370=smt=9, cohort-mutinynet-cas-13*1685443613=cas=13, cohort-mutinynet-cas-8*1037862541=cas=8, cohort-mutinynet-smt-8*1400539705=smt=8}
-Update probabilities per DID per round: 0.25 (true), 1.0 (false)
-Actual update count: 374
-Actual update counts by round: 19,13,28,30,26,23,24,25,23,18,28,26,28,31,32
-Beacon type probabilities per update: 0.25 (SMTBeacon), 1.0 (CASBeacon)
-Actual updates by beacon types: {SMTBeacon=121, CASBeacon=253, SingletonBeacon=0}
-Actual update operations: {add=284, replace=97, remove=25}
-Actual update sizes: 928,956,1026,928,956,932,882,1077,1068,986,1073,932,932,1072,1077,928,956,1068,1077,1077,932,1026,1073,883,932,952,1026,928,883,963,1026,1073,928,956,883,883,1073,928,956,932,952,1026,932,927,1073,928,956,932,1077,1073,932,1025,928,968,1146,932,1077,952,956,1073,1073,1026,932,883,932,968,928,931,1073,1077,964,1072,1026,927,928,1026,927,883,1026,1072,932,927,1073,956,883,1077,1077,1094,931,1141,927,932,1077,1072,931,1120,1026,1146,1025,932,931,1076,1026,1076,1123,1072,927,1072,987,1094,928,1077,928,1026,1026,932,1026,952,1026,1077,928,883,956,928,1077,1077,932,1077,1025,1026,1077,1073,987,1073,1077,928,1073,928,1026,956,1077,1073,1026,927,928,932,952,1073,1071,1026,928,870,1142,932,952,927,955,883,1073,932,932,928,1073,932,931,1072,1072,932,1026,1146,1026,932,932,1073,928,1026,932,1077,932,1026,883,1073,1094,870,927,928,928,927,928,1073,928,956,928,1026,928,883,1073,882,1073,927,1072,1073,1026,932,870,1077,928,931,1077,964,963,932,1073,952,1094,932,1025,932,883,928,1077,928,1073,932,1026,951,883,1077,1076,931,1026,1072,928,927,882,1073,1076,931,952,928,1073,1077,1068,1026,1077,987,932,931,882,932,1026,932,1076,928,882,1077,932,1076,987,1067,1076,928,1025,883,1077,883,1094,1073,931,952,1026,1142,1077,928,932,883,883,1026,964,1072,932,1025,1077,932,1026,928,1073,1077,1073,1093,1026,1120,931,952,931,1026,952,1026,932,870,1073,987,1026,870,1073,1025,932,932,952,1077,932,1073,1077,951,956,932,1073,1072,1077,987,1072,1120,1073,928,956,952,928,964,968,1026,1077,928,1073,927,1077,882,1073,1072,1073,1073,932,1026,882,869,1142,1073,932,932,1026,952,931,883,882,932,928,1077,986,932,883,964,928,932,883,1077,1025,928,932,1026,927,1072,1072,928,882,927
-Actual updates by round by DID:
+## Basic dataset information
+
+**Number of DIDs:** 100
+
+**Number of update rounds:** 15
+
+**Total beacon types:** {SingletonBeacon=300, CASBeacon=100, SMTBeacon=100}
+
+**Total aggregation cohort types and sizes:**
+
+| Aggregation Cohort                   | Type  | Size |
+|:-------------------------------------|:-----:|:-----|
+| `cohort-mutinynet-cas-7*1454904523`  | `cas` | 7    |
+| `cohort-mutinynet-smt-13*733018335`  | `smt` | 13   |
+| `cohort-mutinynet-smt-12*691463090`  | `smt` | 12   |
+| `cohort-mutinynet-cas-12*504956234`  | `cas` | 12   |
+| `cohort-mutinynet-cas-10*1726411591` | `cas` | 10   |
+| `cohort-mutinynet-smt-8*58075060`    | `smt` | 8    |
+| `cohort-mutinynet-smt-12*1089005101` | `smt` | 12   |
+| `cohort-mutinynet-cas-12*698097571`  | `cas` | 12   |
+| `cohort-mutinynet-cas-10*269844304`  | `cas` | 10   |
+| `cohort-mutinynet-cas-8*1947417726`  | `cas` | 8    |
+| `cohort-mutinynet-smt-7*1896204105`  | `smt` | 7    |
+| `cohort-mutinynet-cas-9*1932059088`  | `cas` | 9    |
+| `cohort-mutinynet-smt-11*1277189404` | `smt` | 11   |
+| `cohort-mutinynet-smt-12*508150187`  | `smt` | 12   |
+| `cohort-mutinynet-cas-11*1550232856` | `cas` | 11   |
+| `cohort-mutinynet-smt-8*2075421493`  | `smt` | 8    |
+| `cohort-mutinynet-smt-9*1687143370`  | `smt` | 9    |
+| `cohort-mutinynet-cas-13*1685443613` | `cas` | 13   |
+| `cohort-mutinynet-cas-8*1037862541`  | `cas` | 8    |
+| `cohort-mutinynet-smt-8*1400539705`  | `smt` | 8    |
+
+## Updates
+
+**Update probabilities per round per DID:** 0.25 (true), 0.75 (false)
+
+**Actual update count:** 374
+
+**Actual update counts per round:** 19,13,28,30,26,23,24,25,23,18,28,26,28,31,32
+
+![Analysis - Actual update counts per round](Analysis-Actual-update-counts-per-round.png)
+
+## Updates: Beacons, Operations, Sizes
+
+**Beacon type probabilities per update:** 0.25 (SMTBeacon), 0.75 (CASBeacon)
+
+**Actual updates by beacon types:** {SingletonBeacon=0, CASBeacon=253, SMTBeacon=121}
+
+![Analysis - Actual updates by beacon types](./Analysis-Actual-updates-by-beacon-types.png)
+
+**Actual update operations:** {add=284, replace=97, remove=25}
+
+![Analysis - Actual update operation counts](./Analysis-Actual-update-operation-counts.png)
+
+**Actual update sizes:** 928,956,1026,928,956,932,882,1077,1068,986,1073,932,932,1072,1077,928,956,1068,1077,1077,932,1026,1073,883,932,952,1026,928,883,963,1026,1073,928,956,883,883,1073,928,956,932,952,1026,932,927,1073,928,956,932,1077,1073,932,1025,928,968,1146,932,1077,952,956,1073,1073,1026,932,883,932,968,928,931,1073,1077,964,1072,1026,927,928,1026,927,883,1026,1072,932,927,1073,956,883,1077,1077,1094,931,1141,927,932,1077,1072,931,1120,1026,1146,1025,932,931,1076,1026,1076,1123,1072,927,1072,987,1094,928,1077,928,1026,1026,932,1026,952,1026,1077,928,883,956,928,1077,1077,932,1077,1025,1026,1077,1073,987,1073,1077,928,1073,928,1026,956,1077,1073,1026,927,928,932,952,1073,1071,1026,928,870,1142,932,952,927,955,883,1073,932,932,928,1073,932,931,1072,1072,932,1026,1146,1026,932,932,1073,928,1026,932,1077,932,1026,883,1073,1094,870,927,928,928,927,928,1073,928,956,928,1026,928,883,1073,882,1073,927,1072,1073,1026,932,870,1077,928,931,1077,964,963,932,1073,952,1094,932,1025,932,883,928,1077,928,1073,932,1026,951,883,1077,1076,931,1026,1072,928,927,882,1073,1076,931,952,928,1073,1077,1068,1026,1077,987,932,931,882,932,1026,932,1076,928,882,1077,932,1076,987,1067,1076,928,1025,883,1077,883,1094,1073,931,952,1026,1142,1077,928,932,883,883,1026,964,1072,932,1025,1077,932,1026,928,1073,1077,1073,1093,1026,1120,931,952,931,1026,952,1026,932,870,1073,987,1026,870,1073,1025,932,932,952,1077,932,1073,1077,951,956,932,1073,1072,1077,987,1072,1120,1073,928,956,952,928,964,968,1026,1077,928,1073,927,1077,882,1073,1072,1073,1073,932,1026,882,869,1142,1073,932,932,1026,952,931,883,882,932,928,1077,986,932,883,964,928,932,883,1077,1025,928,932,1026,927,1072,1072,928,882,927
+
+![Analysis - Actual update sizes](./Analysis-Actual-update-sizes.png)
+
+## Updates: Details
+
+**Actual updates per round per DID:**
+
+```
 did:btcr2:x1q4npdvj0kpwmw672cdffplme35uc6k9cp5zfx3jyvjpg3sp88s7ej39lkzc -> . . . . . O . O . . . . . . O (3)
 did:btcr2:x1q5jfc2j9qa3xc878meq9w4rql8apmpznhc45lawghy7umf7lr3d72gcdamk -> . . O O . O . . . O . . . O . (5)
 did:btcr2:x1qkg3df8ae0wx9aqt7k3k8kstjfldeze6lauc6gx0vq9f3ntz80j75rnee6l -> . O . O . . . . . . O O . O . (5)
@@ -112,3 +164,4 @@ did:btcr2:x1qkcqhwrzh35sksseljlwt22nlg0634wkjgu5n0f7phd08wnznt28c0at999 -> . . .
 did:btcr2:x1qhs5a0r5hrq3uad4k83g6dkh3xdkhw462ajsm03pdg7vjlh02f0w6yq6ec2 -> . . . . O . . . . . . . O . . (2)
 did:btcr2:x1qh5m5s5vc08clnnpzgstvjs8hylut65cxl0n0zfpfh3x3a4qxp922w66t62 -> O . . O . . . . . . O . . . . (3)
 did:btcr2:x1qk9uaaaha4nxsfrzkzzq68kehg0ud6hyflguk9kkaq9ejvwskag3j8svqr0 -> . . . O . . . O O . . O . O . (5)
+```

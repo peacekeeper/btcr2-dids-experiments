@@ -6,7 +6,7 @@
 
 **Number of update rounds:** 10
 
-**Total beacon types:** {SMTBeacon=25, SingletonBeacon=75, CASBeacon=25}
+**Total beacon types:** {SingletonBeacon=75, CASBeacon=25, SMTBeacon=25}
 
 **Total aggregation cohort types and sizes:**
 
@@ -25,7 +25,7 @@
 
 ## Updates
 
-**Update probabilities per round per DID:** 0.25 (true), 1.0 (false)
+**Update probabilities per round per DID:** 0.25 (true), 0.75 (false)
 
 **Actual update count:** 60
 
@@ -35,9 +35,9 @@
 
 ## Updates: Beacons, Operations, Sizes
 
-**Beacon type probabilities per update:** 0.25 (SMTBeacon), 1.0 (CASBeacon)
+**Beacon type probabilities per update:** 0.25 (SMTBeacon), 0.75 (CASBeacon)
 
-**Actual updates by beacon types:** {SingletonBeacon=0, SMTBeacon=19, CASBeacon=41}
+**Actual updates by beacon types:** {SingletonBeacon=0, CASBeacon=41, SMTBeacon=19}
 
 ![Analysis - Actual updates by beacon types](./Analysis-Actual-updates-by-beacon-types.png)
 

@@ -6,7 +6,9 @@
 
 **Number of update rounds:** 10
 
-**Total beacon types:** {SingletonBeacon=75, CASBeacon=25, SMTBeacon=25}
+**Total beacons:** {SingletonBeacon=75, CASBeacon=5, SMTBeacon=5}
+
+**Total beacon services:** {SingletonBeacon=75, CASBeacon=25, SMTBeacon=25}
 
 **Total aggregation cohort types and sizes:**
 

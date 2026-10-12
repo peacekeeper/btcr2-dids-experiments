@@ -4,11 +4,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import foundation.identity.did.DIDDocument;
 import foundation.identity.did.Service;
+import foundation.identity.jsonld.JsonLDUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.URI;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -16,7 +18,7 @@ import java.util.stream.Collectors;
 
 public class AnalyzeUpdate {
 
-    private static final String PATH = "./data1/";
+    private static final String PATH = "./data2/";
 
     private static final Pattern COHORT_ID_PATTERN_MAXSIZE = Pattern.compile("^cohort-([a-z0-9]+)-([a-z0-9]{3})-([0-9]+)(\\*([0-9]+))?$");
 
@@ -42,8 +44,7 @@ public class AnalyzeUpdate {
 
         final Set<String> didsSet = new HashSet<>();
         createdDids.forEach(didsSet::add);
-        updatedDidsRounds.forEach(updatedDids -> updatedDids
-                .forEach(didsSet::add));
+        updatedDidsRounds.forEach(updatedDids -> updatedDids.forEach(didsSet::add));
         int didsCount = didsSet.size();
 
         // count update rounds
@@ -72,10 +73,16 @@ public class AnalyzeUpdate {
             cohortTypesAndSizes.put(cohort, new AbstractMap.SimpleEntry<>(cohortType, cohortSize));
         }
 
+        // count beacon services by type
         // count beacons by type
 
-        final Map<String, Integer> beaconTypeCounts = new HashMap<>();
-        beaconTypeCounts.putAll(Map.of("SingletonBeacon", 0, "CASBeacon", 0, "SMTBeacon", 0));
+        final Map<String, Integer> beaconServicesByTypeCounts = new HashMap<>();
+        beaconServicesByTypeCounts.putAll(Map.of("SingletonBeacon", 0, "CASBeacon", 0, "SMTBeacon", 0));
+
+        Set<String> beaconsSingletonBeacons = new HashSet<>();
+        Set<String> beaconsCASBeacons = new HashSet<>();
+        Set<String> beaconsSMTBeacons = new HashSet<>();
+        Map<String, Integer> beaconsByTypeCounts;
 
         createdResolutionOptions.values().stream()
                 .map(x -> (Map<String, Object>) x.get("sidecar"))
@@ -84,10 +91,17 @@ public class AnalyzeUpdate {
                 .forEach(didDocument -> {
                     didDocument.getServices().forEach(service -> {
                         if (service.getType().contains("Beacon")) {
-                            beaconTypeCounts.computeIfPresent(service.getType(), (k, v) -> v+1);
+                            beaconServicesByTypeCounts.computeIfPresent(service.getType(), (k, v) -> v+1);
+                        }
+                        switch (service.getType()) {
+                            case "SingletonBeacon": beaconsSingletonBeacons.add(JsonLDUtils.uriToString((URI) service.getServiceEndpoint())); break;
+                            case "CASBeacon": beaconsCASBeacons.add(JsonLDUtils.uriToString((URI) service.getServiceEndpoint())); break;
+                            case "SMTBeacon": beaconsSMTBeacons.add(JsonLDUtils.uriToString((URI) service.getServiceEndpoint())); break;
                         }
                     });
                 });
+
+        beaconsByTypeCounts = Map.of("SingletonBeacon", beaconsSingletonBeacons.size(), "CASBeacon", beaconsCASBeacons.size(), "SMTBeacon", beaconsSMTBeacons.size());
 
         // count updates per round
         // count updates by DID
@@ -168,7 +182,8 @@ public class AnalyzeUpdate {
 
         System.out.println("Number of DIDs: " + didsCount);
         System.out.println("Number of update rounds: " + updateRoundsCount);
-        System.out.println("Total beacon types: " + beaconTypeCounts);
+        System.out.println("Total beacons: " + beaconsByTypeCounts);
+        System.out.println("Total beacon services: " + beaconServicesByTypeCounts);
         System.out.println("Total aggregation cohort types and sizes: " + cohortTypesAndSizes);
         System.out.println("Update probabilities per round per DID: " + MainUpdate.DECIDE_UPDATE_STRATEGY);
         System.out.println("Actual update count: " + totalUpdates);

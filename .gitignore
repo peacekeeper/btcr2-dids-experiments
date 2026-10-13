@@ -5,4 +5,6 @@
 /bin/
 /.idea/
 *.iml
-keys.json
+data1/keys.json
+data2/keys.json
+data3/keys.json

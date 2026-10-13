@@ -21,3 +21,13 @@ See [./data1](./data1).
 **Actual update count:** 374
 
 See [./data2](./data2).
+
+## Dataset 3
+
+**Number of DIDs:** 100
+
+**Number of update rounds:** 20
+
+**Actual update count:** 403
+
+See [./data3](./data3).

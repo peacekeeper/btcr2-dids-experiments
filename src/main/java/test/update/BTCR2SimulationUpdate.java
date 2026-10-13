@@ -26,7 +26,8 @@ public class BTCR2SimulationUpdate {
             List<String> dids,
             Map<String, Map<String, Object>> didResolutionOptions,
             int round,
-            String selectBeacon,
+            String selectBeaconServiceId,
+            String selectBeaconServiceType,
             PublishToIpfsStrategy publishToIpfsStrategy,
             DecideUpdateStrategy decideUpdateStrategy,
             GenerateOperationStrategy generateOperationStrategy) throws Exception {
@@ -44,7 +45,8 @@ public class BTCR2SimulationUpdate {
             RequestOptions requestOptions = new RequestOptions();
             requestOptions.setClientSecretMode(Boolean.TRUE);
             requestOptions.putAdditionalProperty("resolutionOptions", resolutionOptions);
-            requestOptions.putAdditionalProperty("beaconServiceType", selectBeacon);
+            if (selectBeaconServiceId != null) requestOptions.putAdditionalProperty("beaconServiceId", selectBeaconServiceId);
+            if (selectBeaconServiceType != null) requestOptions.putAdditionalProperty("beaconServiceType", selectBeaconServiceType);
             requestOptions.putAdditionalProperty("publishToIpfs", publishToIpfsStrategy.publishToIpfs());
 
             UpdateRequest updateRequest = new UpdateRequest();

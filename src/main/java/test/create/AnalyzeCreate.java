@@ -14,7 +14,7 @@ import java.util.Map;
 
 public class AnalyzeCreate {
 
-    static int FUNDING = 3000;
+    static int FUNDING = 1000;
 
     static JsonMapper jsonMapper = JsonMapper.builder().build();
 
@@ -29,6 +29,7 @@ public class AnalyzeCreate {
 
         // analyze
 
+        Map<String, List<String>> singletonBeacons = new HashMap<>();
         Map<String, List<String>> casBeacons = new HashMap<>();
         Map<String, List<String>> smtBeacons = new HashMap<>();
         Map<String, List<String>> beacons = new HashMap<>();
@@ -36,19 +37,23 @@ public class AnalyzeCreate {
         createdResolutionOptions.forEach((did, resolutionOptions) -> {
             DIDDocumentV1_1 didDocumentV11 = DIDDocumentV1_1.fromMap((Map<String, Object>) ((Map<String, Object>) resolutionOptions.get("sidecar")).get("genesisDocument"));
             for (Service service : didDocumentV11.getServices()) {
+                String id = service.getId().toString();
                 String type = service.getType();
                 String serviceEndpoint = JsonLDUtils.uriToString((URI) service.getServiceEndpoint());
                 if (! serviceEndpoint.startsWith("bitcoin:")) continue;
                 String address = serviceEndpoint.substring("bitcoin:".length());
+                if ("SingletonBeacon".equals(type) && "#initialP2PKH".equals(id)) singletonBeacons.computeIfAbsent(address, s -> new ArrayList<>()).add(did);
                 if ("CASBeacon".equals(type)) casBeacons.computeIfAbsent(address, s -> new ArrayList<>()).add(did);
                 if ("SMTBeacon".equals(type)) smtBeacons.computeIfAbsent(address, s -> new ArrayList<>()).add(did);
             }
         });
+        beacons.putAll(singletonBeacons);
         beacons.putAll(casBeacons);
         beacons.putAll(smtBeacons);
 
         // print result
 
+        singletonBeacons.forEach((s, dids) -> System.out.println("SingletonBeacon " + s + " (" + dids.size() + "): " + dids));
         casBeacons.forEach((s, dids) -> System.out.println("CASBeacon " + s + " (" + dids.size() + "): " + dids));
         smtBeacons.forEach((s, dids) -> System.out.println("SMTBeacon " + s + " (" + dids.size() + "): " + dids));
 

@@ -2,7 +2,6 @@ package test.update.selectbeacon;
 
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 public class RandomSelectBeaconStrategy implements SelectBeaconStrategy {
 
@@ -17,11 +16,11 @@ public class RandomSelectBeaconStrategy implements SelectBeaconStrategy {
     }
 
     @Override
-    public String selectBeacon() {
+    public String[] selectBeaconServiceIdAndType() {
         float random = RANDOM.nextFloat();
         for (int i=0; i<this.getProbabilities().size(); i++) {
             if (random < this.getProbabilities().get(i)) {
-                return this.getSelectBeaconStrategies().get(i).selectBeacon();
+                return this.getSelectBeaconStrategies().get(i).selectBeaconServiceIdAndType();
             }
         }
         throw new IllegalStateException("No matching probability for " + random);

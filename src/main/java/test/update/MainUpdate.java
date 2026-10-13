@@ -14,10 +14,7 @@ import test.update.generateoperation.UpdateMyKeyVerificationMethodGenerateOperat
 import test.update.generateoperation.UpdateMyServiceGenerateOperationStrategy;
 import test.update.publishtoipfs.FalsePublishIpfsStrategy;
 import test.update.publishtoipfs.PublishToIpfsStrategy;
-import test.update.selectbeacon.CASSelectBeaconStrategy;
-import test.update.selectbeacon.RandomSelectBeaconStrategy;
-import test.update.selectbeacon.SMTSelectBeaconStrategy;
-import test.update.selectbeacon.SelectBeaconStrategy;
+import test.update.selectbeacon.*;
 import uniregistrar.openapi.model.UpdateState;
 
 import java.io.*;
@@ -30,13 +27,14 @@ import java.util.concurrent.ScheduledExecutorService;
 
 public class MainUpdate {
 
-    static final int ROUNDS = 20;
-    static final SelectBeaconStrategy SELECT_BEACON_STRATEGY = new RandomSelectBeaconStrategy(List.of(0.25f, 1.0f), List.of(
+    static final int ROUNDS = 10;
+    static final SelectBeaconStrategy SELECT_BEACON_STRATEGY = new RandomSelectBeaconStrategy(List.of(0.5f, 0.75f, 1.0f), List.of(
+            new SingletonSelectBeaconStrategy(),
             new SMTSelectBeaconStrategy(),
             new CASSelectBeaconStrategy()
     ));
     static final PublishToIpfsStrategy PUBLISH_TO_IPFS_STRATEGY = new FalsePublishIpfsStrategy();
-    static final DecideUpdateStrategy DECIDE_UPDATE_STRATEGY = new RandomDecideUpdateStrategy(List.of(0.25f, 1.0f), List.of(
+    static final DecideUpdateStrategy DECIDE_UPDATE_STRATEGY = new RandomDecideUpdateStrategy(List.of(0.2f, 1.0f), List.of(
             new TrueDecideUpdateStrategy(),
             new FalseDecideUpdateStrategy()
     ));
@@ -66,7 +64,9 @@ public class MainUpdate {
 
             ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
 
-            String selectBeacon = SELECT_BEACON_STRATEGY.selectBeacon();
+            String[] selectBeaconServiceIdAndType = SELECT_BEACON_STRATEGY.selectBeaconServiceIdAndType();
+            String selectBeaconServiceId = selectBeaconServiceIdAndType[0];
+            String selectBeaconServiceType = selectBeaconServiceIdAndType[1];
 
             Collection<CompletableFuture<UpdateState>> completableFutures = BTCR2SimulationUpdate.update(
                     executorService,
@@ -74,7 +74,8 @@ public class MainUpdate {
                     inputDids,
                     inputResolutionOptions,
                     round,
-                    selectBeacon,
+                    selectBeaconServiceId,
+                    selectBeaconServiceType,
                     PUBLISH_TO_IPFS_STRATEGY,
                     DECIDE_UPDATE_STRATEGY,
                     GENERATE_OPERATION_STRATEGY);

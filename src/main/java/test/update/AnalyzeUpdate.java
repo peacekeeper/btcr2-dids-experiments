@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 public class AnalyzeUpdate {
 
-    private static final String PATH = "./data2/";
+    private static final String PATH = "./data3/";
 
     private static final Pattern COHORT_ID_PATTERN_MAXSIZE = Pattern.compile("^cohort-([a-z0-9]+)-([a-z0-9]{3})-([0-9]+)(\\*([0-9]+))?$");
 
@@ -167,7 +167,7 @@ public class AnalyzeUpdate {
             List<Map<String, Object>> patches = (List<Map<String, Object>>) lastUpdatedResolutionOptionsSidecarUpdate.get("patch");
             Set<String> patchOps = new HashSet<>();
             for (Map<String, Object> patch : patches) patchOps.add((String) patch.get("op"));
-            for  (String patchOp : patchOps) {
+            for (String patchOp : patchOps) {
                 updateOperations.computeIfAbsent(patchOp, (k) -> 0);
                 updateOperations.computeIfPresent(patchOp, (k, v) -> v+1);
             }

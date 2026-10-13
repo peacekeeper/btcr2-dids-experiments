@@ -14,7 +14,7 @@ import java.util.Map;
 
 public class AnalyzeCreate {
 
-    static int FUNDING = 1000;
+    static int FUNDING = 3000;
 
     static JsonMapper jsonMapper = JsonMapper.builder().build();
 

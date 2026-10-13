@@ -18,9 +18,9 @@ import java.util.concurrent.ScheduledExecutorService;
 
 public class MainCreate {
 
-    static final int NUMBER = 25;
+    static final int NUMBER = 100;
     static final String NETWORK = "mutinynet";
-    static int COHORTS_AVERAGE_SIZE = 5;
+    static int COHORTS_AVERAGE_SIZE = 10;
 
     static final LinkedHashMap<String, Integer> COHORTS_CAS;
     static final LinkedHashMap<String, Integer> COHORTS_SMT;

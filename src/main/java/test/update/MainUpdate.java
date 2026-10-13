@@ -27,18 +27,18 @@ import java.util.concurrent.ScheduledExecutorService;
 
 public class MainUpdate {
 
-    static final int ROUNDS = 10;
+    static final int ROUNDS = 20;
     static final SelectBeaconStrategy SELECT_BEACON_STRATEGY = new RandomSelectBeaconStrategy(List.of(0.5f, 0.75f, 1.0f), List.of(
             new SingletonSelectBeaconStrategy(),
             new SMTSelectBeaconStrategy(),
             new CASSelectBeaconStrategy()
     ));
     static final PublishToIpfsStrategy PUBLISH_TO_IPFS_STRATEGY = new FalsePublishIpfsStrategy();
-    static final DecideUpdateStrategy DECIDE_UPDATE_STRATEGY = new RandomDecideUpdateStrategy(List.of(0.2f, 1.0f), List.of(
+    static final DecideUpdateStrategy DECIDE_UPDATE_STRATEGY = new RandomDecideUpdateStrategy(List.of(0.20f, 1.0f), List.of(
             new TrueDecideUpdateStrategy(),
             new FalseDecideUpdateStrategy()
     ));
-    static final GenerateOperationStrategy GENERATE_OPERATION_STRATEGY = new RandomGenerateOperationStrategy(List.of(0.5f, 1.0f), List.of(
+    static final GenerateOperationStrategy GENERATE_OPERATION_STRATEGY = new RandomGenerateOperationStrategy(List.of(0.25f, 1.0f), List.of(
             new UpdateMyServiceGenerateOperationStrategy(2),
             new UpdateMyKeyVerificationMethodGenerateOperationStrategy(3)
     ));

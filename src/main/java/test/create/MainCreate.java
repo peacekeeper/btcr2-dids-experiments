@@ -20,7 +20,7 @@ public class MainCreate {
 
     static final int NUMBER = 100;
     static final String NETWORK = "mutinynet";
-    static int COHORTS_AVERAGE_SIZE = 10;
+    static int COHORTS_AVERAGE_SIZE = 25;
 
     static final LinkedHashMap<String, Integer> COHORTS_CAS;
     static final LinkedHashMap<String, Integer> COHORTS_SMT;

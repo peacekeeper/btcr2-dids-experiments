@@ -89,7 +89,7 @@ public class MainPublishIpfs {
 
         // write result to file
 
-        writePublishIpfsCreateOut(createdDids, createdResolutionOptions);
+        writeCreateOut(createdDids, createdResolutionOptions);
 
         // rounds
 
@@ -137,7 +137,7 @@ public class MainPublishIpfs {
 
             // write result to file
 
-            writePublishIpfsUpdateOut(round, updatedDids, updatedResolutionOptions);
+            writeUpdateOut(round, updatedDids, updatedResolutionOptions);
         }
     }
 
@@ -199,8 +199,8 @@ public class MainPublishIpfs {
         }
     }
 
-    private static void writePublishIpfsCreateOut(List<String> createdDids, Map<String, Map<String, Object>> createdResolutionOptions) throws IOException {
-        PrintWriter printWriter = new PrintWriter(new FileWriter("./publish-ipfs-create-out.jsonl"));
+    private static void writeCreateOut(List<String> createdDids, Map<String, Map<String, Object>> createdResolutionOptions) throws IOException {
+        PrintWriter printWriter = new PrintWriter(new FileWriter("./create-out.jsonl"));
         for (int i=0; i<createdDids.size(); i++) {
             String did = createdDids.get(i);
             Map<String, Object> resolutionOptions = createdResolutionOptions.get(did);
@@ -211,8 +211,8 @@ public class MainPublishIpfs {
         printWriter.close();
     }
 
-    private static void writePublishIpfsUpdateOut(int round, List<String> updatedDids, Map<String, Map<String, Object>> updatedResolutionOptions) throws IOException, ExecutionException, InterruptedException {
-        PrintWriter printWriter = new PrintWriter(new FileWriter("./publish-ipfs-update-out-" + (round+1) + ".jsonl"));
+    private static void writeUpdateOut(int round, List<String> updatedDids, Map<String, Map<String, Object>> updatedResolutionOptions) throws IOException, ExecutionException, InterruptedException {
+        PrintWriter printWriter = new PrintWriter(new FileWriter("./update-out-" + (round+1) + ".jsonl"));
         for (int i=0; i<updatedDids.size(); i++) {
             String did = updatedDids.get(i);
             Map<String, Object> resolutionOptions = updatedResolutionOptions.get(did);

@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 
 public class AnalyzeAfterCreateAndUpdateAndResolve {
 
-    private static final String PATH = "./data3/";
+    private static final String PATH = "./data4/";
 
     private static final Pattern COHORT_ID_PATTERN_MAXSIZE = Pattern.compile("^cohort-([a-z0-9]+)-([a-z0-9]{3})-([0-9]+)(\\*([0-9]+))?$");
 
@@ -62,10 +62,9 @@ public class AnalyzeAfterCreateAndUpdateAndResolve {
 
         Set<String> cohorts = new HashSet<>();
         Map<String, String> cohortAddresses = new HashMap<>();
-        createdResolutionOptions.forEach((key, value) -> {
-            Map<String, Object> sidecar = (Map<String, Object>) value.get("sidecar");
-            DIDDocument genesisDocument = DIDDocument.fromMap((Map<String, Object>) sidecar.get("genesisDocument"));
-            for (Service service : genesisDocument.getServices()) {
+        resolvedResolveResults.getFirst().values().forEach(resolveResult -> {
+            DIDDocument didDocument = resolveResult.getDidDocument();
+            for (Service service : didDocument.getServices()) {
                 if ("CASBeacon".equals(service.getType()) || "SMTBeacon".equals(service.getType())) {
                     cohorts.add(service.getId().toString().substring("#".length()));
                     cohortAddresses.put(JsonLDUtils.uriToString((URI) service.getServiceEndpoint()).substring("bitcoin:".length()), service.getId().toString().substring("#".length()));
@@ -93,22 +92,18 @@ public class AnalyzeAfterCreateAndUpdateAndResolve {
         Set<String> beaconsSMTBeacons = new HashSet<>();
         Map<String, Integer> beaconsByTypeCounts;
 
-        createdResolutionOptions.values().stream()
-                .map(x -> (Map<String, Object>) x.get("sidecar"))
-                .map(x -> (Map<String, Object>) x.get("genesisDocument"))
-                .map(DIDDocument::fromMap)
-                .forEach(didDocument -> {
-                    didDocument.getServices().forEach(service -> {
-                        if (service.getType().contains("Beacon")) {
-                            beaconServicesByTypeCounts.computeIfPresent(service.getType(), (k, v) -> v+1);
-                        }
-                        switch (service.getType()) {
-                            case "SingletonBeacon": beaconsSingletonBeacons.add(JsonLDUtils.uriToString((URI) service.getServiceEndpoint())); break;
-                            case "CASBeacon": beaconsCASBeacons.add(JsonLDUtils.uriToString((URI) service.getServiceEndpoint())); break;
-                            case "SMTBeacon": beaconsSMTBeacons.add(JsonLDUtils.uriToString((URI) service.getServiceEndpoint())); break;
-                        }
-                    });
-                });
+        resolvedResolveResults.getFirst().values().forEach(resolveResult -> {
+            resolveResult.getDidDocument().getServices().forEach(service -> {
+                if (service.getType().contains("Beacon")) {
+                    beaconServicesByTypeCounts.computeIfPresent(service.getType(), (k, v) -> v+1);
+                }
+                switch (service.getType()) {
+                    case "SingletonBeacon": beaconsSingletonBeacons.add(JsonLDUtils.uriToString((URI) service.getServiceEndpoint())); break;
+                    case "CASBeacon": beaconsCASBeacons.add(JsonLDUtils.uriToString((URI) service.getServiceEndpoint())); break;
+                    case "SMTBeacon": beaconsSMTBeacons.add(JsonLDUtils.uriToString((URI) service.getServiceEndpoint())); break;
+                }
+            });
+        });
 
         beaconsByTypeCounts = Map.of("SingletonBeacon", beaconsSingletonBeacons.size(), "CASBeacon", beaconsCASBeacons.size(), "SMTBeacon", beaconsSMTBeacons.size());
 
@@ -117,6 +112,8 @@ public class AnalyzeAfterCreateAndUpdateAndResolve {
         // count updates by cohort
         // yes/no updates by round by DID
         // count updates by round by cohort
+        // resolution time by round by DID
+        // versionId by round by DID
 
         Map<Integer, Integer> updatesPerRound = new LinkedHashMap<>();
         for (int round=0; round<updatedDidsRounds.size(); round++) updatesPerRound.put(round, 0);
@@ -127,13 +124,34 @@ public class AnalyzeAfterCreateAndUpdateAndResolve {
         Map<String, Integer> updatesByCohort = new LinkedHashMap<>();
         for (String cohort : cohorts) updatesByCohort.put(cohort, 0);
 
-        Map<String, Map<Integer, Boolean>> updatesByRoundByDid = new HashMap<>();
+        Map<String, Map<Integer, Boolean>> updatesByRoundByDid = new LinkedHashMap<>();
         for (String did : createdDids) updatesByRoundByDid.put(did, new HashMap<>());
         for (String did : createdDids) for (int round=0; round<updatedDidsRounds.size(); round++) updatesByRoundByDid.get(did).put(round, Boolean.FALSE);
 
         Map<String, Map<Integer, Integer>> updatesByRoundByCohort = new LinkedHashMap<>();
         for (String cohort : cohorts) updatesByRoundByCohort.put(cohort, new HashMap<>());
         for (String cohort : cohorts) for (int round=0; round<updatedDidsRounds.size(); round++) updatesByRoundByCohort.get(cohort).put(round, 0);
+
+        Map<String, Map<Integer, Integer>> versionIdsByRoundByDid = new LinkedHashMap<>();
+        for (String did : createdDids) versionIdsByRoundByDid.put(did, new HashMap<>());
+
+        Map<String, Map<Integer, Integer>> resolutionTimesByRoundByDid = new LinkedHashMap<>();
+        for (String did : createdDids) resolutionTimesByRoundByDid.put(did, new HashMap<>());
+
+        Map<String, Map<Integer, Integer>> casAnnouncementsByRoundByDid = new LinkedHashMap<>();
+        for (String did : createdDids) casAnnouncementsByRoundByDid.put(did, new HashMap<>());
+
+        Map<String, Map<Integer, Integer>> smtProofsByRoundByDid = new LinkedHashMap<>();
+        for (String did : createdDids) smtProofsByRoundByDid.put(did, new HashMap<>());
+
+        Map<String, Map<Integer, Integer>> genesisDocumentCidByRoundByDid = new LinkedHashMap<>();
+        for (String did : createdDids) genesisDocumentCidByRoundByDid.put(did, new HashMap<>());
+
+        Map<String, Map<Integer, Integer>> updateCidsByRoundByDid = new LinkedHashMap<>();
+        for (String did : createdDids) updateCidsByRoundByDid.put(did, new HashMap<>());
+
+        Map<String, Map<Integer, Integer>> casAnnouncementCidsByRoundByDid = new LinkedHashMap<>();
+        for (String did : createdDids) casAnnouncementCidsByRoundByDid.put(did, new HashMap<>());
 
         Map<String, Integer> lastVersionId = new HashMap<>();
 
@@ -164,6 +182,15 @@ public class AnalyzeAfterCreateAndUpdateAndResolve {
                 updatesByCohort.computeIfPresent(cohort, (k, v) -> v+1);
                 updatesByRoundByDid.get(did).put(round, Boolean.TRUE);
                 if (cohort != null) updatesByRoundByCohort.get(cohort).computeIfPresent(round, (k, v) -> v+1);
+
+                versionIdsByRoundByDid.get(did).put(round, Integer.parseInt((String) resolveResult.getDidDocumentMetadata().get("versionId")));
+                resolutionTimesByRoundByDid.get(did).put(round, ((Number) resolveResult.getDidResolutionMetadata().get("duration")).intValue());
+                casAnnouncementsByRoundByDid.get(did).put(round, resolveResult.getDidDocumentMetadata().containsKey("casAnnouncements") ? ((Map<String, Object>) resolveResult.getDidDocumentMetadata().get("casAnnouncements")).size() : 0);
+                smtProofsByRoundByDid.get(did).put(round, resolveResult.getDidDocumentMetadata().containsKey("smtProofs") ? ((Map<String, Object>) resolveResult.getDidDocumentMetadata().get("smtProofs")).size() : 0);
+                genesisDocumentCidByRoundByDid.get(did).put(round, resolveResult.getDidResolutionMetadata().containsKey("genesisDocumentCid") ? 1 : 0);
+                updateCidsByRoundByDid.get(did).put(round, resolveResult.getDidResolutionMetadata().containsKey("updateCids") ? ((Map<String, Object>) resolveResult.getDidResolutionMetadata().get("updateCids")).size() : 0);
+                casAnnouncementCidsByRoundByDid.get(did).put(round, resolveResult.getDidResolutionMetadata().containsKey("casAnnouncementCids") ? ((Map<String, Object>) resolveResult.getDidResolutionMetadata().get("casAnnouncementCids")).size() : 0);
+
                 lastVersionId.put(did, versionId);
             }
         }
@@ -233,6 +260,19 @@ public class AnalyzeAfterCreateAndUpdateAndResolve {
         System.out.println("Actual updates per round per cohort: ");
         for (String cohort : cohorts) {
             System.out.println(String.format("%-35s", cohort) + " -> " + updatesByRoundByCohort.get(cohort).values().stream().map(i -> Integer.toString(i)).collect(Collectors.joining(" ")) + " (" + updatesByCohort.get(cohort) + ")");
+        }
+        System.out.println("Resolution times per round per DID: ");
+        for (String createdDid : createdDids) {
+            for (int round : new TreeSet<>(versionIdsByRoundByDid.get(createdDid).keySet())) {
+                System.out.println(createdDid +
+                        "," + versionIdsByRoundByDid.get(createdDid).get(round) +
+                        "," + resolutionTimesByRoundByDid.get(createdDid).get(round) +
+                        "," + casAnnouncementsByRoundByDid.get(createdDid).get(round) +
+                        "," + smtProofsByRoundByDid.get(createdDid).get(round) +
+                        "," + genesisDocumentCidByRoundByDid.get(createdDid).get(round) +
+                        "," + updateCidsByRoundByDid.get(createdDid).get(round) +
+                        "," + casAnnouncementCidsByRoundByDid.get(createdDid).get(round));
+            }
         }
     }
 

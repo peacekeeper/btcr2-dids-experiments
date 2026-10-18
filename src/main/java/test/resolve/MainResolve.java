@@ -45,6 +45,7 @@ public class MainResolve {
         List<ResolveResult> resolveResults = new ArrayList<>();
 
         for (int i=0; i<createdDids.size(); i++) {
+
             String did = createdDids.get(i);
             Map<String, Object> resolutionOptions = createdResolutionOptions.get(did);
             resolutionOptions.put("accept", Representations.DEFAULT_MEDIA_TYPE);
@@ -58,13 +59,16 @@ public class MainResolve {
 
         // print result
 
-        System.out.println("Resolved created DIDs: " + dids);
+        System.out.println("Resolved created DIDs: " + dids.size());
 
         // write result to file
 
         writeResolveOut(-1, dids, resolveResults);
 
+        // rounds
+
         for (int round=0; round<updatedDidsRounds.size(); round++) {
+
             List<String> updateDids = updatedDidsRounds.get(round);
             Map<String, Map<String, Object>> updatedResolutionOptions = updatedResolutionOptionsRounds.get(round);
 
@@ -72,6 +76,7 @@ public class MainResolve {
             resolveResults = new ArrayList<>();
 
             for (int i=0; i<createdDids.size(); i++) {
+
                 String did = updateDids.get(i);
                 Map<String, Object> resolutionOptions = updatedResolutionOptions.get(did);
                 resolutionOptions.put("accept", Representations.DEFAULT_MEDIA_TYPE);
@@ -85,7 +90,7 @@ public class MainResolve {
 
             // print result
 
-            System.out.println("Resolved updated DIDs (round " + round + "): " + dids);
+            System.out.println("Resolved updated DIDs (round " + (round+1) + "): " + dids.size());
 
             // write result to file
 
@@ -130,7 +135,7 @@ public class MainResolve {
         for (int i=0; i<dids.size(); i++) {
             String did = dids.get(i);
             ResolveResult resolveResult = resolveResults.get(i);
-            printWriter.println(dids);
+            printWriter.println(did);
             printWriter.println(jsonMapper.writeValueAsString(resolveResult.toMap()));
         }
         printWriter.flush();

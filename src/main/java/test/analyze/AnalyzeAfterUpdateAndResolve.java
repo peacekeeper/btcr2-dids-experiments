@@ -1,10 +1,12 @@
-package test.update;
+package test.analyze;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import foundation.identity.did.DIDDocument;
 import foundation.identity.did.Service;
 import foundation.identity.jsonld.JsonLDUtils;
+import test.update.MainUpdate;
+import uniresolver.result.ResolveResult;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -16,9 +18,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class AnalyzeUpdate {
+public class AnalyzeAfterUpdateAndResolve {
 
-    private static final String PATH = "./data3/";
+    private static final String PATH = "./data2/";
 
     private static final Pattern COHORT_ID_PATTERN_MAXSIZE = Pattern.compile("^cohort-([a-z0-9]+)-([a-z0-9]{3})-([0-9]+)(\\*([0-9]+))?$");
 
@@ -38,6 +40,11 @@ public class AnalyzeUpdate {
         readUpdateOuts(PATH, updatedDidsRounds, updatedResolutionOptionsRounds);
         System.out.println("updatedDidsRounds: " + updatedDidsRounds);
 
+        List<List<String>> resolvedDidsRounds = new ArrayList<>();
+        List<Map<String, ResolveResult>> resolvedResolveResults = new ArrayList<>();
+        readResolveOuts(PATH, resolvedDidsRounds, resolvedResolveResults);
+        System.out.println("readResolveOuts: " + resolvedDidsRounds);
+
         // analyze!
 
         // count DIDs
@@ -54,12 +61,14 @@ public class AnalyzeUpdate {
         // cohort types and sizes
 
         Set<String> cohorts = new HashSet<>();
+        Map<String, String> cohortAddresses = new HashMap<>();
         createdResolutionOptions.forEach((key, value) -> {
             Map<String, Object> sidecar = (Map<String, Object>) value.get("sidecar");
             DIDDocument genesisDocument = DIDDocument.fromMap((Map<String, Object>) sidecar.get("genesisDocument"));
             for (Service service : genesisDocument.getServices()) {
                 if ("CASBeacon".equals(service.getType()) || "SMTBeacon".equals(service.getType())) {
                     cohorts.add(service.getId().toString().substring("#".length()));
+                    cohortAddresses.put(JsonLDUtils.uriToString((URI) service.getServiceEndpoint()).substring("bitcoin:".length()), service.getId().toString().substring("#".length()));
                 }
             }
         });
@@ -105,32 +114,57 @@ public class AnalyzeUpdate {
 
         // count updates per round
         // count updates by DID
+        // count updates by cohort
         // yes/no updates by round by DID
+        // count updates by round by cohort
 
-        List<Integer> updatesPerRound = new ArrayList<>();
-        for (int round=0; round<updatedDidsRounds.size(); round++) updatesPerRound.add( 0);
+        Map<Integer, Integer> updatesPerRound = new LinkedHashMap<>();
+        for (int round=0; round<updatedDidsRounds.size(); round++) updatesPerRound.put(round, 0);
 
-        Map<String, Integer> updatesByDid = new HashMap<>();
+        Map<String, Integer> updatesByDid = new LinkedHashMap<>();
         for (String did : createdDids) updatesByDid.put(did, 0);
+
+        Map<String, Integer> updatesByCohort = new LinkedHashMap<>();
+        for (String cohort : cohorts) updatesByCohort.put(cohort, 0);
 
         Map<String, Map<Integer, Boolean>> updatesByRoundByDid = new HashMap<>();
         for (String did : createdDids) updatesByRoundByDid.put(did, new HashMap<>());
         for (String did : createdDids) for (int round=0; round<updatedDidsRounds.size(); round++) updatesByRoundByDid.get(did).put(round, Boolean.FALSE);
 
+        Map<String, Map<Integer, Integer>> updatesByRoundByCohort = new LinkedHashMap<>();
+        for (String cohort : cohorts) updatesByRoundByCohort.put(cohort, new HashMap<>());
+        for (String cohort : cohorts) for (int round=0; round<updatedDidsRounds.size(); round++) updatesByRoundByCohort.get(cohort).put(round, 0);
+
         Map<String, Integer> lastVersionId = new HashMap<>();
 
         for (int round=0; round<updatedDidsRounds.size(); round++) {
+
             Map<String, Map<String, Object>> updatedResolutionOptions = updatedResolutionOptionsRounds.get(round);
+
             for (Map.Entry<String, Map<String, Object>> updatedResolutionOptionsEntry : updatedResolutionOptions.entrySet()) {
+
                 String did = updatedResolutionOptionsEntry.getKey();
                 Map<String, Object> resolutionOptions = updatedResolutionOptionsEntry.getValue();
+
                 int versionId = Integer.parseInt((String) resolutionOptions.get("versionId"));
-                if (versionId > lastVersionId.computeIfAbsent(did, (k) -> 1)) {
-                    updatesPerRound.set(round, updatesPerRound.get(round) + 1);
-                    updatesByDid.computeIfPresent(did, (k, v) -> v+1);
-                    updatesByRoundByDid.get(did).put(round, Boolean.TRUE);
-                    lastVersionId.put(did, versionId);
-                }
+                if (versionId <= lastVersionId.computeIfAbsent(did, (k) -> 1)) continue;
+
+                ResolveResult resolveResult = resolvedResolveResults.get(round).get(did);
+                String lastUpdateHash = (String) ((List<Map<String, Object>>) resolveResult.getDidDocumentMetadata().get("updates")).getLast().get("updateHash");
+                Map<String, Object> beaconSignals = (Map<String, Object>) resolveResult.getDidDocumentMetadata().get("beaconSignals");
+                String cohortAddress = beaconSignals.entrySet().stream().filter(
+                        x -> ((Map<String, Object>) x.getValue()).containsValue(lastUpdateHash))
+                        .map(Map.Entry::getKey)
+                        .findAny()
+                        .orElse(null);
+                String cohort = cohortAddresses.get(cohortAddress);
+
+                updatesPerRound.computeIfPresent(round, (k, v) -> v+1);
+                updatesByDid.computeIfPresent(did, (k, v) -> v+1);
+                updatesByCohort.computeIfPresent(cohort, (k, v) -> v+1);
+                updatesByRoundByDid.get(did).put(round, Boolean.TRUE);
+                updatesByRoundByCohort.get(cohort).computeIfPresent(round, (k, v) -> v+1);
+                lastVersionId.put(did, versionId);
             }
         }
 
@@ -168,7 +202,7 @@ public class AnalyzeUpdate {
             Set<String> patchOps = new HashSet<>();
             for (Map<String, Object> patch : patches) patchOps.add((String) patch.get("op"));
             for (String patchOp : patchOps) {
-                updateOperations.computeIfAbsent(patchOp, (k) -> 0);
+                updateOperations.putIfAbsent(patchOp, 0);
                 updateOperations.computeIfPresent(patchOp, (k, v) -> v+1);
             }
         }
@@ -187,7 +221,7 @@ public class AnalyzeUpdate {
         System.out.println("Total aggregation cohort types and sizes: " + cohortTypesAndSizes);
         System.out.println("Update probabilities per round per DID: " + MainUpdate.DECIDE_UPDATE_STRATEGY);
         System.out.println("Actual update count: " + totalUpdates);
-        System.out.println("Actual update counts per round: " + updatesPerRound.stream().map(i -> Integer.toString(i)).collect(Collectors.joining(",")));
+        System.out.println("Actual update counts per round: " + updatesPerRound.values().stream().map(x -> Integer.toString(x)).collect(Collectors.joining(",")));
         System.out.println("Beacon type probabilities per update: " + MainUpdate.SELECT_BEACON_STRATEGY);
         System.out.println("Actual updates by beacon types: " + updatesByBeaconTypes);
         System.out.println("Actual update operations: " + updateOperations);
@@ -195,6 +229,10 @@ public class AnalyzeUpdate {
         System.out.println("Actual updates per round per DID: ");
         for (String createdDid : createdDids) {
             System.out.println(createdDid + " -> " + updatesByRoundByDid.get(createdDid).values().stream().map(b -> b ? "O" : ".").collect(Collectors.joining(" ")) + " (" + updatesByDid.get(createdDid) + ")");
+        }
+        System.out.println("Actual updates per round per cohort: ");
+        for (String cohort : cohorts) {
+            System.out.println(String.format("%-35s", cohort) + " -> " + updatesByRoundByCohort.get(cohort).values().stream().map(i -> Integer.toString(i)).collect(Collectors.joining(" ")) + " (" + updatesByCohort.get(cohort) + ")");
         }
     }
 
@@ -225,6 +263,27 @@ public class AnalyzeUpdate {
                     updatedDidsRounds.get(round-1).add(line);
                 else
                     updatedResolutionOptionsRounds.get(round-1).put(updatedDidsRounds.get(round-1).getLast(), jsonMapper.readValue(line, Map.class));
+            }
+            bufferedReader.close();
+        }
+    }
+
+
+    private static void readResolveOuts(String path, List<List<String>> resolvedDidsRounds, List<Map<String, ResolveResult>> resolvedResolveResults) throws IOException {
+        int round = 0;
+        while (true) {
+            round++;
+            File file = new File(path + "resolve-out-" + round + ".jsonl");
+            if (! file.exists()) break;
+            resolvedDidsRounds.add(new ArrayList<>());
+            resolvedResolveResults.add(new HashMap<>());
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
+            String line;
+            while ((line=bufferedReader.readLine()) != null) {
+                if (line.startsWith("did:"))
+                    resolvedDidsRounds.get(round-1).add(line);
+                else
+                    resolvedResolveResults.get(round-1).put(resolvedDidsRounds.get(round-1).getLast(), ResolveResult.fromJson(line));
             }
             bufferedReader.close();
         }

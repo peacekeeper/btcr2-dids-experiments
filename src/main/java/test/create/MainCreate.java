@@ -18,14 +18,14 @@ import java.util.concurrent.ScheduledExecutorService;
 
 public class MainCreate {
 
-    static final int NUMBER = 100;
-    static final String NETWORK = "mutinynet";
-    static int COHORTS_AVERAGE_SIZE = 25;
+    public static final int NUMBER = 100;
+    public static final String NETWORK = "mutinynet";
+    public static int COHORTS_AVERAGE_SIZE = 25;
 
-    static final LinkedHashMap<String, Integer> COHORTS_CAS;
-    static final LinkedHashMap<String, Integer> COHORTS_SMT;
+    private static final LinkedHashMap<String, Integer> COHORTS_CAS;
+    private static final LinkedHashMap<String, Integer> COHORTS_SMT;
 
-    static final Map<Integer, List<String>> COHORTS = new HashMap<>();
+    private static final Map<Integer, List<String>> COHORTS = new HashMap<>();
 
     static {
         Random RANDOM = new Random();
@@ -66,9 +66,9 @@ public class MainCreate {
         System.out.println("SMT cohorts: " + COHORTS_SMT.keySet());
     }
 
-    static ClientKeyInterface<ClientKey> clientKeyInterface = (ClientKeyInterface<ClientKey>) ClientKeyInterfaceFactory.clientKeyInterface(ClientKeyInterfaceFactory.KMSProvider.LOCAL_FILE, null, null, null, null);
+    private static ClientKeyInterface<ClientKey> clientKeyInterface = (ClientKeyInterface<ClientKey>) ClientKeyInterfaceFactory.clientKeyInterface(ClientKeyInterfaceFactory.KMSProvider.LOCAL_FILE, null, null, null, null);
 
-    static JsonMapper jsonMapper = JsonMapper.builder().build();
+    private static JsonMapper jsonMapper = JsonMapper.builder().build();
 
     public static void main(String[] args) throws Exception {
 

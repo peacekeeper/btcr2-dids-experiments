@@ -27,25 +27,25 @@ import java.util.concurrent.ScheduledExecutorService;
 
 public class MainUpdate {
 
-    static final int ROUNDS = 20;
-    static final SelectBeaconStrategy SELECT_BEACON_STRATEGY = new RandomSelectBeaconStrategy(List.of(0.2f, 0.8f, 1.0f), List.of(
+    public static final int ROUNDS = 20;
+    public static final SelectBeaconStrategy SELECT_BEACON_STRATEGY = new RandomSelectBeaconStrategy(List.of(0.2f, 0.8f, 1.0f), List.of(
             new SingletonSelectBeaconStrategy(),
             new SMTSelectBeaconStrategy(),
             new CASSelectBeaconStrategy()
     ));
-    static final PublishToIpfsStrategy PUBLISH_TO_IPFS_STRATEGY = new FalsePublishIpfsStrategy();
-    static final DecideUpdateStrategy DECIDE_UPDATE_STRATEGY = new RandomDecideUpdateStrategy(List.of(0.75f, 1.0f), List.of(
+    public static final PublishToIpfsStrategy PUBLISH_TO_IPFS_STRATEGY = new FalsePublishIpfsStrategy();
+    public static final DecideUpdateStrategy DECIDE_UPDATE_STRATEGY = new RandomDecideUpdateStrategy(List.of(0.75f, 1.0f), List.of(
             new TrueDecideUpdateStrategy(),
             new FalseDecideUpdateStrategy()
     ));
-    static final GenerateOperationStrategy GENERATE_OPERATION_STRATEGY = new RandomGenerateOperationStrategy(List.of(0.75f, 1.0f), List.of(
+    public static final GenerateOperationStrategy GENERATE_OPERATION_STRATEGY = new RandomGenerateOperationStrategy(List.of(0.75f, 1.0f), List.of(
             new UpdateMyServiceGenerateOperationStrategy(2),
             new UpdateMyKeyVerificationMethodGenerateOperationStrategy(3)
     ));
 
-    static ClientKeyInterface<?> clientKeyInterface = ClientKeyInterfaceFactory.clientKeyInterface(ClientKeyInterfaceFactory.KMSProvider.LOCAL_FILE, null, null, null, null);
+    private static ClientKeyInterface<?> clientKeyInterface = ClientKeyInterfaceFactory.clientKeyInterface(ClientKeyInterfaceFactory.KMSProvider.LOCAL_FILE, null, null, null, null);
 
-    static JsonMapper jsonMapper = JsonMapper.builder().build();
+    private static JsonMapper jsonMapper = JsonMapper.builder().build();
 
     public static void main(String[] args) throws Exception {
 

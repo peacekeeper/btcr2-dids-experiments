@@ -1,4 +1,4 @@
-package test.create;
+package test.analyze;
 
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import foundation.identity.did.DIDDocumentV1_1;
@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class AnalyzeCreate {
+public class AnalyzeAfterCreate {
 
     static int FUNDING = 3000;
 

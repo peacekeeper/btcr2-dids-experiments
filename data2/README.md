@@ -167,3 +167,28 @@ did:btcr2:x1qhs5a0r5hrq3uad4k83g6dkh3xdkhw462ajsm03pdg7vjlh02f0w6yq6ec2 -> . . .
 did:btcr2:x1qh5m5s5vc08clnnpzgstvjs8hylut65cxl0n0zfpfh3x3a4qxp922w66t62 -> O . . O . . . . . . O . . . . (3)
 did:btcr2:x1qk9uaaaha4nxsfrzkzzq68kehg0ud6hyflguk9kkaq9ejvwskag3j8svqr0 -> . . . O . . . O O . . O . O . (5)
 ```
+
+**Actual updates per round per cohort:**
+
+```
+cohort-mutinynet-cas-7*1454904523   -> 0 0 0 1 0 1 1 2 2 1 2 0 0 1 5 (16)
+cohort-mutinynet-smt-13*733018335   -> 0 2 5 0 5 0 0 0 0 0 0 2 1 0 0 (15)
+cohort-mutinynet-smt-12*691463090   -> 0 2 2 0 4 0 0 0 0 0 0 3 4 0 0 (15)
+cohort-mutinynet-cas-12*504956234   -> 6 0 0 4 0 3 3 4 2 2 3 0 0 7 2 (36)
+cohort-mutinynet-cas-10*1726411591  -> 1 0 0 2 0 4 2 4 3 2 4 0 0 3 7 (32)
+cohort-mutinynet-smt-8*58075060     -> 0 0 1 0 1 0 0 0 0 0 0 2 3 0 0 (7)
+cohort-mutinynet-smt-12*1089005101  -> 0 2 4 0 2 0 0 0 0 0 0 2 4 0 0 (14)
+cohort-mutinynet-cas-12*698097571   -> 2 0 0 5 0 2 3 4 1 3 5 0 0 5 3 (33)
+cohort-mutinynet-cas-10*269844304   -> 1 0 0 3 0 3 2 5 4 0 2 0 0 2 4 (26)
+cohort-mutinynet-cas-8*1947417726   -> 4 0 0 5 0 2 2 1 2 1 2 0 0 2 3 (24)
+cohort-mutinynet-smt-7*1896204105   -> 0 2 3 0 3 0 0 0 0 0 0 4 2 0 0 (14)
+cohort-mutinynet-cas-9*1932059088   -> 1 0 0 3 0 1 5 1 1 2 1 0 0 2 1 (18)
+cohort-mutinynet-smt-11*1277189404  -> 0 1 3 0 2 0 0 0 0 0 0 2 5 0 0 (13)
+cohort-mutinynet-smt-12*508150187   -> 0 0 1 0 2 0 0 0 0 0 0 2 4 0 0 (9)
+cohort-mutinynet-cas-11*1550232856  -> 2 0 0 2 0 3 4 0 3 1 3 0 0 5 3 (26)
+cohort-mutinynet-smt-8*2075421493   -> 0 1 0 0 3 0 0 0 0 0 0 2 3 0 0 (9)
+cohort-mutinynet-smt-9*1687143370   -> 0 2 7 0 1 0 0 0 0 0 0 3 0 0 0 (13)
+cohort-mutinynet-cas-13*1685443613  -> 2 0 0 2 0 3 1 2 4 4 3 0 0 2 1 (24)
+cohort-mutinynet-cas-8*1037862541   -> 0 0 0 3 0 1 1 2 1 2 3 0 0 2 3 (18)
+cohort-mutinynet-smt-8*1400539705   -> 0 1 2 0 3 0 0 0 0 0 0 4 2 0 0 (12)
+```

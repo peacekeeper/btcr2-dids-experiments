@@ -82,3 +82,18 @@ did:btcr2:x1qk79dxfw6f6p763rup6gzwe25a6zsc6lzm49npc2lwa8qf0el8r4gyy0g7z -> . O .
 did:btcr2:x1qk6qk78p0jc7yvgj4ewmeayc4fmretr8dzw86s05f38hmsjgzaha6e9tzs5 -> O O O O . . . . . . (4)
 did:btcr2:x1q454xh7v277ygva485xxsw9897x8z37x8t982lv08v9v7w32a3z0xaxs3cu -> . . . . . . O O O . (3)
 ```
+
+**Actual updates per round per cohort:**
+
+```
+cohort-mutinynet-cas-5*914489003    -> 0 0 0 0 1 2 0 0 3 0 (6)
+cohort-mutinynet-smt-4*1313926177   -> 1 0 0 0 0 0 0 0 0 1 (2)
+cohort-mutinynet-smt-5*1558620337   -> 1 0 0 2 0 0 0 0 0 1 (4)
+cohort-mutinynet-smt-5*261042241    -> 1 0 0 2 0 0 0 0 0 2 (5)
+cohort-mutinynet-cas-3*1281328863   -> 0 1 1 0 1 0 2 1 1 0 (7)
+cohort-mutinynet-cas-7*1215244637   -> 0 4 2 0 2 1 2 3 1 0 (15)
+cohort-mutinynet-smt-5*285767441    -> 1 0 0 0 0 0 0 0 0 1 (2)
+cohort-mutinynet-smt-6*1459988450   -> 2 0 0 1 0 0 0 0 0 3 (6)
+cohort-mutinynet-cas-9*729704740    -> 0 1 1 0 0 2 2 2 2 0 (10)
+cohort-mutinynet-cas-1*1337910826   -> 0 0 0 0 1 0 0 1 1 0 (3)
+```

@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 
 public class AnalyzeAfterUpdateAndResolve {
 
-    private static final String PATH = "./data2/";
+    private static final String PATH = "./data3/";
 
     private static final Pattern COHORT_ID_PATTERN_MAXSIZE = Pattern.compile("^cohort-([a-z0-9]+)-([a-z0-9]{3})-([0-9]+)(\\*([0-9]+))?$");
 
@@ -163,7 +163,7 @@ public class AnalyzeAfterUpdateAndResolve {
                 updatesByDid.computeIfPresent(did, (k, v) -> v+1);
                 updatesByCohort.computeIfPresent(cohort, (k, v) -> v+1);
                 updatesByRoundByDid.get(did).put(round, Boolean.TRUE);
-                updatesByRoundByCohort.get(cohort).computeIfPresent(round, (k, v) -> v+1);
+                if (cohort != null) updatesByRoundByCohort.get(cohort).computeIfPresent(round, (k, v) -> v+1);
                 lastVersionId.put(did, versionId);
             }
         }

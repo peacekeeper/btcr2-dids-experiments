@@ -28,24 +28,24 @@ import java.util.concurrent.ScheduledExecutorService;
 public class MainUpdate {
 
     public static final int ROUNDS = 20;
+    public static final DecideUpdateStrategy DECIDE_UPDATE_STRATEGY = new RandomDecideUpdateStrategy(List.of(0.75f, 1.0f), List.of(
+            new TrueDecideUpdateStrategy(),
+            new FalseDecideUpdateStrategy()
+    ));
     public static final SelectBeaconStrategy SELECT_BEACON_STRATEGY = new RandomSelectBeaconStrategy(List.of(0.2f, 0.8f, 1.0f), List.of(
             new SingletonSelectBeaconStrategy(),
             new SMTSelectBeaconStrategy(),
             new CASSelectBeaconStrategy()
     ));
     public static final PublishToIpfsStrategy PUBLISH_TO_IPFS_STRATEGY = new FalsePublishIpfsStrategy();
-    public static final DecideUpdateStrategy DECIDE_UPDATE_STRATEGY = new RandomDecideUpdateStrategy(List.of(0.75f, 1.0f), List.of(
-            new TrueDecideUpdateStrategy(),
-            new FalseDecideUpdateStrategy()
-    ));
     public static final GenerateOperationStrategy GENERATE_OPERATION_STRATEGY = new RandomGenerateOperationStrategy(List.of(0.75f, 1.0f), List.of(
             new UpdateMyServiceGenerateOperationStrategy(2),
             new UpdateMyKeyVerificationMethodGenerateOperationStrategy(3)
     ));
 
-    private static ClientKeyInterface<?> clientKeyInterface = ClientKeyInterfaceFactory.clientKeyInterface(ClientKeyInterfaceFactory.KMSProvider.LOCAL_FILE, null, null, null, null);
+    private static final ClientKeyInterface<?> clientKeyInterface = ClientKeyInterfaceFactory.clientKeyInterface(ClientKeyInterfaceFactory.KMSProvider.LOCAL_FILE, null, null, null, null);
 
-    private static JsonMapper jsonMapper = JsonMapper.builder().build();
+    private static final JsonMapper jsonMapper = JsonMapper.builder().build();
 
     public static void main(String[] args) throws Exception {
 
@@ -64,25 +64,20 @@ public class MainUpdate {
 
             ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
 
-            String[] selectBeaconServiceIdAndType = SELECT_BEACON_STRATEGY.selectBeaconServiceIdAndType();
-            String selectBeaconServiceId = selectBeaconServiceIdAndType[0];
-            String selectBeaconServiceType = selectBeaconServiceIdAndType[1];
-
             Collection<CompletableFuture<UpdateState>> completableFutures = BTCR2SimulationUpdate.update(
                     executorService,
                     clientKeyInterface,
                     inputDids,
                     inputResolutionOptions,
                     round,
-                    selectBeaconServiceId,
-                    selectBeaconServiceType,
-                    PUBLISH_TO_IPFS_STRATEGY,
                     DECIDE_UPDATE_STRATEGY,
+                    SELECT_BEACON_STRATEGY,
+                    PUBLISH_TO_IPFS_STRATEGY,
                     GENERATE_OPERATION_STRATEGY);
 
             System.out.println("Waiting for " + completableFutures.size() + " results.");
             CompletableFuture.allOf(completableFutures.toArray(CompletableFuture[]::new)).join();
-            Collection<UpdateState> updateStates = completableFutures.stream().map(CompletableFuture::join).toList();
+            List<UpdateState> updateStates = completableFutures.stream().map(CompletableFuture::join).toList();
             executorService.shutdown();
 
             // print result
@@ -126,7 +121,7 @@ public class MainUpdate {
         bufferedReader.close();
     }
 
-    private static void writeUpdateOut(int round, Collection<UpdateState> updateStates, Map<String, Map<String, Object>> inputResolutionOptions) throws IOException, ExecutionException, InterruptedException {
+    private static void writeUpdateOut(int round, List<UpdateState> updateStates, Map<String, Map<String, Object>> inputResolutionOptions) throws IOException, ExecutionException, InterruptedException {
         PrintWriter printWriter = new PrintWriter(new FileWriter("./update-out-" + (round+1) + ".jsonl"));
         for (UpdateState updateState : updateStates) {
             String did = updateState.getDidState().getDid();

@@ -14,9 +14,9 @@ import java.util.Map;
 
 public class AnalyzeAfterCreate {
 
-    static int FUNDING = 3000;
+    private static final int FUNDING = 3000;
 
-    static JsonMapper jsonMapper = JsonMapper.builder().build();
+    private static final JsonMapper jsonMapper = JsonMapper.builder().build();
 
     public static void main(String[] args) throws Exception {
 

@@ -17,7 +17,7 @@ public class MainResolve {
 
     private static final ClientUniResolver clientUniResolver;
 
-    static JsonMapper jsonMapper = JsonMapper.builder().build();
+    private static final JsonMapper jsonMapper = JsonMapper.builder().build();
 
     static {
         clientUniResolver = ClientUniResolver.create(URI.create("http://localhost:8080/1.0/"));
@@ -39,10 +39,9 @@ public class MainResolve {
         readUpdateOuts(updatedDidsRounds, updatedResolutionOptionsRounds);
         System.out.println("updatedDidsRounds: " + updatedDidsRounds);
 
-        // rounds
+        // round 0
 
-        List<String> dids = new ArrayList<>();
-        List<ResolveResult> resolveResults = new ArrayList<>();
+        List<ResolveResult> createdResolveResults = new ArrayList<>();
 
         for (int i=0; i<createdDids.size(); i++) {
 
@@ -53,17 +52,16 @@ public class MainResolve {
             // resolve
 
             ResolveResult resolveResult = clientUniResolver.resolve(did, resolutionOptions);
-            dids.add(did);
-            resolveResults.add(resolveResult);
+            createdResolveResults.add(resolveResult);
         }
 
         // print result
 
-        System.out.println("Resolved created DIDs: " + dids.size());
+        System.out.println("Resolved created DIDs: " + createdDids.size());
 
         // write result to file
 
-        writeResolveOut(-1, dids, resolveResults);
+        writeResolveOut(-1, createdDids, createdResolveResults);
 
         // rounds
 
@@ -72,29 +70,27 @@ public class MainResolve {
             List<String> updateDids = updatedDidsRounds.get(round);
             Map<String, Map<String, Object>> updatedResolutionOptions = updatedResolutionOptionsRounds.get(round);
 
-            dids = new ArrayList<>();
-            resolveResults = new ArrayList<>();
+            List<ResolveResult> updatedResolveResults = new ArrayList<>();
 
             for (int i=0; i<createdDids.size(); i++) {
 
                 String did = updateDids.get(i);
                 Map<String, Object> resolutionOptions = updatedResolutionOptions.get(did);
-                resolutionOptions.put("accept", Representations.DEFAULT_MEDIA_TYPE);
 
                 // resolve
 
+                resolutionOptions.put("accept", Representations.DEFAULT_MEDIA_TYPE);
                 ResolveResult resolveResult = clientUniResolver.resolve(did, resolutionOptions);
-                dids.add(did);
-                resolveResults.add(resolveResult);
+                updatedResolveResults.add(resolveResult);
             }
 
             // print result
 
-            System.out.println("Resolved updated DIDs (round " + (round+1) + "): " + dids.size());
+            System.out.println("Resolved updated DIDs (round " + (round+1) + "): " + updateDids.size());
 
             // write result to file
 
-            writeResolveOut(round, dids, resolveResults);
+            writeResolveOut(round, updateDids, updatedResolveResults);
         }
     }
 

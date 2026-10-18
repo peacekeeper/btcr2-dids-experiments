@@ -66,9 +66,9 @@ public class MainCreate {
         System.out.println("SMT cohorts: " + COHORTS_SMT.keySet());
     }
 
-    private static ClientKeyInterface<ClientKey> clientKeyInterface = (ClientKeyInterface<ClientKey>) ClientKeyInterfaceFactory.clientKeyInterface(ClientKeyInterfaceFactory.KMSProvider.LOCAL_FILE, null, null, null, null);
+    private static final ClientKeyInterface<ClientKey> clientKeyInterface = (ClientKeyInterface<ClientKey>) ClientKeyInterfaceFactory.clientKeyInterface(ClientKeyInterfaceFactory.KMSProvider.LOCAL_FILE, null, null, null, null);
 
-    private static JsonMapper jsonMapper = JsonMapper.builder().build();
+    private static final JsonMapper jsonMapper = JsonMapper.builder().build();
 
     public static void main(String[] args) throws Exception {
 
@@ -89,7 +89,7 @@ public class MainCreate {
 
         System.out.println("Waiting for " + completableFutures.size() + " results.");
         CompletableFuture.allOf(completableFutures.toArray(CompletableFuture[]::new)).join();
-        Collection<CreateState> createStates = completableFutures.stream().map(CompletableFuture::join).toList();
+        List<CreateState> createStates = completableFutures.stream().map(CompletableFuture::join).toList();
         executorService.shutdown();
 
         // print result
@@ -122,7 +122,7 @@ public class MainCreate {
         } while (file != null);
     }
 
-    private static void writeCreateOut(Collection<CreateState> createStates) throws IOException {
+    private static void writeCreateOut(List<CreateState> createStates) throws IOException {
         PrintWriter printWriter = new PrintWriter(new FileWriter("./create-out.jsonl"));
         for (CreateState createState : createStates) {
             String did = createState.getDidState().getDid();

@@ -18,13 +18,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class AnalyzeAfterUpdateAndResolve {
+public class AnalyzeAfterCreateAndUpdateAndResolve {
 
     private static final String PATH = "./data3/";
 
     private static final Pattern COHORT_ID_PATTERN_MAXSIZE = Pattern.compile("^cohort-([a-z0-9]+)-([a-z0-9]{3})-([0-9]+)(\\*([0-9]+))?$");
 
-    static JsonMapper jsonMapper = JsonMapper.builder().build();
+    private static final JsonMapper jsonMapper = JsonMapper.builder().build();
 
     public static void main(String[] args) throws Exception {
 
@@ -267,7 +267,6 @@ public class AnalyzeAfterUpdateAndResolve {
             bufferedReader.close();
         }
     }
-
 
     private static void readResolveOuts(String path, List<List<String>> resolvedDidsRounds, List<Map<String, ResolveResult>> resolvedResolveResults) throws IOException {
         int round = 0;

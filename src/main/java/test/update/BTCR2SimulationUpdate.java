@@ -6,6 +6,7 @@ import com.danubetech.kms.clientstateinterface.impl.memory.InMemoryClientStateIn
 import test.update.decideupdate.DecideUpdateStrategy;
 import test.update.generateoperation.GenerateOperationStrategy;
 import test.update.publishtoipfs.PublishToIpfsStrategy;
+import test.update.selectbeacon.SelectBeaconStrategy;
 import test.util.ExecutionUtil;
 import uniregistrar.openapi.model.RequestOptions;
 import uniregistrar.openapi.model.UpdateRequest;
@@ -26,10 +27,9 @@ public class BTCR2SimulationUpdate {
             List<String> dids,
             Map<String, Map<String, Object>> didResolutionOptions,
             int round,
-            String selectBeaconServiceId,
-            String selectBeaconServiceType,
-            PublishToIpfsStrategy publishToIpfsStrategy,
             DecideUpdateStrategy decideUpdateStrategy,
+            SelectBeaconStrategy selectBeaconStrategy,
+            PublishToIpfsStrategy publishToIpfsStrategy,
             GenerateOperationStrategy generateOperationStrategy) throws Exception {
 
         Collection<CompletableFuture<UpdateState>> futures = new ArrayList<>();
@@ -39,6 +39,12 @@ public class BTCR2SimulationUpdate {
             final String did = dids.get(i);
             final Map<String, Object> resolutionOptions = didResolutionOptions.get(did);
 
+            boolean decideUpdate = decideUpdateStrategy.decideUpdate();
+            String[] selectBeaconServiceIdAndType = selectBeaconStrategy.selectBeaconServiceIdAndType();
+            String selectBeaconServiceId = selectBeaconServiceIdAndType[0];
+            String selectBeaconServiceType = selectBeaconServiceIdAndType[1];
+            boolean publishToIpfs = publishToIpfsStrategy.publishToIpfs();
+
             CompletableFuture<UpdateState> future = new CompletableFuture<>();
             futures.add(future);
 
@@ -47,13 +53,13 @@ public class BTCR2SimulationUpdate {
             requestOptions.putAdditionalProperty("resolutionOptions", resolutionOptions);
             if (selectBeaconServiceId != null) requestOptions.putAdditionalProperty("beaconServiceId", selectBeaconServiceId);
             if (selectBeaconServiceType != null) requestOptions.putAdditionalProperty("beaconServiceType", selectBeaconServiceType);
-            requestOptions.putAdditionalProperty("publishToIpfs", publishToIpfsStrategy.publishToIpfs());
+            requestOptions.putAdditionalProperty("publishToIpfs", publishToIpfs);
 
             UpdateRequest updateRequest = new UpdateRequest();
             updateRequest.setDid(did);
             updateRequest.setOptions(requestOptions);
 
-            if (decideUpdateStrategy.decideUpdate()) {
+            if (decideUpdate) {
                 generateOperationStrategy.generateOperation(updateRequest);
             }
 

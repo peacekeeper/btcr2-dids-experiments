@@ -12,6 +12,7 @@ import test.update.publishtoipfs.FalsePublishIpfsStrategy;
 import test.update.publishtoipfs.PublishToIpfsStrategy;
 import test.update.publishtoipfs.RandomPublishToIpfsStrategy;
 import test.update.publishtoipfs.TruePublishIpfsStrategy;
+import test.util.JSONDocumentHashing;
 import uniresolver.client.ClientUniResolver;
 
 import java.io.*;
@@ -22,7 +23,7 @@ import java.util.concurrent.ExecutionException;
 
 public class MainPublishIpfs {
 
-    public static final PublishToIpfsStrategy PUBLISH_TO_IPFS_STRATEGY = new RandomPublishToIpfsStrategy(List.of(0.1f, 1.0f), List.of(
+    public static final PublishToIpfsStrategy PUBLISH_TO_IPFS_STRATEGY = new RandomPublishToIpfsStrategy(List.of(0.2f, 1.0f), List.of(
             new TruePublishIpfsStrategy(),
             new FalsePublishIpfsStrategy()
     ));
@@ -65,6 +66,8 @@ public class MainPublishIpfs {
 
         // round 0
 
+        Map<Map<String, Object>, Boolean> publishedToIpfs = new HashMap<>();
+
         for (int i=0; i<createdDids.size(); i++) {
 
             String did = createdDids.get(i);
@@ -75,7 +78,8 @@ public class MainPublishIpfs {
             Map<String, Object> genesisDocument = (Map<String, Object>) sidecar.get("genesisDocument");
             if (genesisDocument != null) {
                 totalGenesisDocumentCount++;
-                if (PUBLISH_TO_IPFS_STRATEGY.publishToIpfs()) {
+                Boolean publishToIpfs = publishedToIpfs.computeIfAbsent(genesisDocument, b -> PUBLISH_TO_IPFS_STRATEGY.publishToIpfs());
+                if (publishToIpfs) {
                     publishToIpfs(genesisDocument);
                     sidecar.remove("genesisDocument");
                     publishedGenesisDocumentCount++;
@@ -85,7 +89,7 @@ public class MainPublishIpfs {
 
         // print result
 
-        System.out.println("Published genesis documents: " + publishedGenesisDocumentCount + "/" + totalGenesisDocumentCount);
+        System.out.println("Published genesis documents (round 0): " + publishedGenesisDocumentCount + "/" + totalGenesisDocumentCount);
 
         // write result to file
 
@@ -94,6 +98,13 @@ public class MainPublishIpfs {
         // rounds
 
         for (int round=0; round<updatedDidsRounds.size(); round++) {
+
+            totalGenesisDocumentCount = 0;
+            totalUpdateCount = 0;
+            totalCasUpdateCount = 0;
+            publishedGenesisDocumentCount = 0;
+            publishedUpdateCount = 0;
+            publishedCasUpdateCount = 0;
 
             List<String> updatedDids = updatedDidsRounds.get(round);
             Map<String, Map<String, Object>> updatedResolutionOptions = updatedResolutionOptionsRounds.get(round);
@@ -105,12 +116,24 @@ public class MainPublishIpfs {
 
                 // publish ipfs
 
+                Map<String, Object> genesisDocument = (Map<String, Object>) sidecar.get("genesisDocument");
+                if (genesisDocument != null) {
+                    totalGenesisDocumentCount++;
+                    Boolean publishToIpfs = publishedToIpfs.computeIfAbsent(genesisDocument, b -> PUBLISH_TO_IPFS_STRATEGY.publishToIpfs());
+                    if (publishToIpfs) {
+                        publishToIpfs(genesisDocument);
+                        sidecar.remove("genesisDocument");
+                        publishedGenesisDocumentCount++;
+                    }
+                }
+
                 List<Map<String, Object>> updates = (List<Map<String, Object>>) sidecar.get("updates");
                 Iterator<Map<String, Object>> updatesIterator = updates == null ? null : updates.iterator();
                 while (updatesIterator != null && updatesIterator.hasNext()) {
                     Map<String, Object> update = updatesIterator.next();
                     totalUpdateCount++;
-                    if (PUBLISH_TO_IPFS_STRATEGY.publishToIpfs()) {
+                    Boolean publishToIpfs = publishedToIpfs.computeIfAbsent(update, b -> PUBLISH_TO_IPFS_STRATEGY.publishToIpfs());
+                    if (publishToIpfs) {
                         publishToIpfs(update);
                         updatesIterator.remove();
                         publishedUpdateCount++;
@@ -122,7 +145,8 @@ public class MainPublishIpfs {
                 while (casUpdatesIterator != null && casUpdatesIterator.hasNext()) {
                     Map<String, Object> casUpdate = casUpdatesIterator.next();
                     totalCasUpdateCount++;
-                    if (PUBLISH_TO_IPFS_STRATEGY.publishToIpfs()) {
+                    Boolean publishToIpfs = publishedToIpfs.computeIfAbsent(casUpdate, b -> PUBLISH_TO_IPFS_STRATEGY.publishToIpfs());
+                    if (publishToIpfs) {
                         publishToIpfs(casUpdate);
                         casUpdatesIterator.remove();
                         publishedCasUpdateCount++;
@@ -132,6 +156,7 @@ public class MainPublishIpfs {
 
             // print result
 
+            System.out.println("Published genesis documents (round " + (round+1) + "): " + publishedGenesisDocumentCount + "/" + totalGenesisDocumentCount);
             System.out.println("Published updates (round " + (round+1) + "): " + publishedUpdateCount + "/" + totalUpdateCount);
             System.out.println("Published CAS updates (round " + (round+1) + "): " + publishedCasUpdateCount + "/" + totalCasUpdateCount);
 
@@ -139,12 +164,17 @@ public class MainPublishIpfs {
 
             writeUpdateOut(round, updatedDids, updatedResolutionOptions);
         }
+
+        // print result
+
+        System.out.println("Published IPFS objects: " + publishedToIpfs.values().stream().filter(b -> b).count());
     }
 
-    private static MerkleNode publishToIpfs(Map<String, Object> object) throws IOException {
+    private static byte[] publishToIpfs(Map<String, Object> object) throws IOException {
         byte[] ipfsPayload = jsonDocumentCanonicalizing(object).getBytes(StandardCharsets.UTF_8);
         AddArgs addArgs = AddArgs.Builder.newInstance().setCidVersion(1).setRawLeaves().setHash("sha2-256").setPin().build();
-        return ipfs.add(new NamedStreamable.ByteArrayWrapper(ipfsPayload), addArgs).getFirst();
+        ipfs.add(new NamedStreamable.ByteArrayWrapper(ipfsPayload), addArgs);
+        return JSONDocumentHashing.jsonDocumentHashing(object);
     }
 
     public static String jsonDocumentCanonicalizing(String json) {

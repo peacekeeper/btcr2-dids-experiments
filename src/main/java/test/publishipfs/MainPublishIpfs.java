@@ -23,7 +23,7 @@ import java.util.concurrent.ExecutionException;
 
 public class MainPublishIpfs {
 
-    public static final PublishToIpfsStrategy PUBLISH_TO_IPFS_STRATEGY = new RandomPublishToIpfsStrategy(List.of(0.2f, 1.0f), List.of(
+    public static final PublishToIpfsStrategy PUBLISH_TO_IPFS_STRATEGY = new RandomPublishToIpfsStrategy(List.of(0.5f, 1.0f), List.of(
             new TruePublishIpfsStrategy(),
             new FalsePublishIpfsStrategy()
     ));

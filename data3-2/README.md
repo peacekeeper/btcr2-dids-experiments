@@ -1,4 +1,4 @@
-# `did:btcr2` - Data Set 3
+# `did:btcr2` - Data Set 3-2
 
 ## Basic dataset information
 

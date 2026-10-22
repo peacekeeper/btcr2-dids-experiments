@@ -24,8 +24,8 @@
 | `cohort-mutinynet-cas-12*1318389017` | `cas` |   12 |
 | `cohort-mutinynet-cas-12*1874395322` | `cas` |   12 |
 | `cohort-mutinynet-cas-12*261245263`  | `cas` |   12 |
-| `cohort-mutinynet-smt-8*67259778`    | `smt` |    8 |
 | `cohort-mutinynet-smt-8*2142964582`  | `smt` |    8 |
+| `cohort-mutinynet-smt-8*67259778`    | `smt` |    8 |
 | `cohort-mutinynet-smt-9*1001084286`  | `smt` |    9 |
 | `cohort-mutinynet-smt-9*533589495`   | `smt` |    9 |
 | `cohort-mutinynet-smt-9*977823170`   | `smt` |    9 |

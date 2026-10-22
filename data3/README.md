@@ -14,26 +14,26 @@
 
 | Aggregation Cohort                   | Type  | Size |
 |:-------------------------------------|:-----:|-----:|
-| `cohort-mutinynet-cas-12*1318389017` | `cas` |   12 |
-| `cohort-mutinynet-smt-12*1702798122` | `smt` |   12 |
-| `cohort-mutinynet-smt-8*67259778`    | `smt` |    8 |
-| `cohort-mutinynet-smt-8*2142964582`  | `smt` |    8 |
-| `cohort-mutinynet-smt-11*449857350`  | `smt` |   11 |
-| `cohort-mutinynet-smt-12*666630589`  | `smt` |   12 |
-| `cohort-mutinynet-cas-8*2092839258`  | `cas` |    8 |
-| `cohort-mutinynet-cas-10*529851527`  | `cas` |   10 |
-| `cohort-mutinynet-cas-10*1373633603` | `cas` |   10 |
-| `cohort-mutinynet-smt-9*1001084286`  | `smt` |    9 |
-| `cohort-mutinynet-smt-9*977823170`   | `smt` |    9 |
 | `cohort-mutinynet-cas-8*1567016963`  | `cas` |    8 |
-| `cohort-mutinynet-cas-12*261245263`  | `cas` |   12 |
-| `cohort-mutinynet-smt-11*41957669`   | `smt` |   11 |
-| `cohort-mutinynet-smt-9*533589495`   | `smt` |    9 |
-| `cohort-mutinynet-cas-12*1874395322` | `cas` |   12 |
-| `cohort-mutinynet-smt-11*1604094573` | `smt` |   11 |
-| `cohort-mutinynet-cas-10*541864111`  | `cas` |   10 |
+| `cohort-mutinynet-cas-8*2092839258`  | `cas` |    8 |
 | `cohort-mutinynet-cas-8*814135560`   | `cas` |    8 |
+| `cohort-mutinynet-cas-10*1373633603` | `cas` |   10 |
 | `cohort-mutinynet-cas-10*1632062087` | `cas` |   10 |
+| `cohort-mutinynet-cas-10*529851527`  | `cas` |   10 |
+| `cohort-mutinynet-cas-10*541864111`  | `cas` |   10 |
+| `cohort-mutinynet-cas-12*1318389017` | `cas` |   12 |
+| `cohort-mutinynet-cas-12*1874395322` | `cas` |   12 |
+| `cohort-mutinynet-cas-12*261245263`  | `cas` |   12 |
+| `cohort-mutinynet-smt-8*2142964582`  | `smt` |    8 |
+| `cohort-mutinynet-smt-8*67259778`    | `smt` |    8 |
+| `cohort-mutinynet-smt-9*1001084286`  | `smt` |    9 |
+| `cohort-mutinynet-smt-9*533589495`   | `smt` |    9 |
+| `cohort-mutinynet-smt-9*977823170`   | `smt` |    9 |
+| `cohort-mutinynet-smt-11*1604094573` | `smt` |   11 |
+| `cohort-mutinynet-smt-11*41957669`   | `smt` |   11 |
+| `cohort-mutinynet-smt-11*449857350`  | `smt` |   11 |
+| `cohort-mutinynet-smt-12*1702798122` | `smt` |   12 |
+| `cohort-mutinynet-smt-12*666630589`  | `smt` |   12 |
 
 ## Updates
 

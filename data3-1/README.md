@@ -22,7 +22,6 @@
 | `cohort-mutinynet-cas-10*529851527`  | `cas` |   10 |
 | `cohort-mutinynet-cas-10*541864111`  | `cas` |   10 |
 | `cohort-mutinynet-cas-12*1318389017` | `cas` |   12 |
-| `cohort-mutinynet-smt-12*1702798122` | `smt` |   12 |
 | `cohort-mutinynet-cas-12*1874395322` | `cas` |   12 |
 | `cohort-mutinynet-cas-12*261245263`  | `cas` |   12 |
 | `cohort-mutinynet-smt-8*2142964582`  | `smt` |    8 |
@@ -33,6 +32,7 @@
 | `cohort-mutinynet-smt-11*1604094573` | `smt` |   11 |
 | `cohort-mutinynet-smt-11*41957669`   | `smt` |   11 |
 | `cohort-mutinynet-smt-11*449857350`  | `smt` |   11 |
+| `cohort-mutinynet-smt-12*1702798122` | `smt` |   12 |
 | `cohort-mutinynet-smt-12*666630589`  | `smt` |   12 |
 
 ## Updates

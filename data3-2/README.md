@@ -37,7 +37,7 @@
 
 ## Updates
 
-**Update probabilities per round per DID:** 0.2 (true), 0.8 (false)
+**Update probabilities per round per DID:** 0.20 (true), 0.80 (false)
 
 **Actual update count:** 403
 
@@ -47,7 +47,7 @@
 
 ## Updates: Beacons, Operations, Sizes
 
-**Beacon type probabilities per update:** 0.5 (SingletonBeacon) 0.25 (SMTBeacon), 0.25 (CASBeacon)
+**Beacon type probabilities per update:** 0.50 (SingletonBeacon) 0.25 (SMTBeacon), 0.25 (CASBeacon)
 
 **Actual updates by beacon types:** {SingletonBeacon=175, CASBeacon=109, SMTBeacon=119}
 

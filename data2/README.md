@@ -23,6 +23,7 @@
 | `cohort-mutinynet-cas-11*1550232856` | `cas` | 11   |
 | `cohort-mutinynet-cas-12*504956234`  | `cas` | 12   |
 | `cohort-mutinynet-cas-12*698097571`  | `cas` | 12   |
+| `cohort-mutinynet-cas-13*1685443613` | `cas` | 13   |
 | `cohort-mutinynet-smt-7*1896204105`  | `smt` | 7    |
 | `cohort-mutinynet-smt-8*1400539705`  | `smt` | 8    |
 | `cohort-mutinynet-smt-8*2075421493`  | `smt` | 8    |
@@ -32,7 +33,6 @@
 | `cohort-mutinynet-smt-12*1089005101` | `smt` | 12   |
 | `cohort-mutinynet-smt-12*508150187`  | `smt` | 12   |
 | `cohort-mutinynet-smt-12*691463090`  | `smt` | 12   |
-| `cohort-mutinynet-cas-13*1685443613` | `cas` | 13   |
 | `cohort-mutinynet-smt-13*733018335`  | `smt` | 13   |
 
 ## Updates
@@ -47,7 +47,7 @@
 
 ## Updates: Beacons, Operations, Sizes
 
-**Beacon type probabilities per update:** 0.25 (SMTBeacon), 0.75 (CASBeacon)
+**Beacon type probabilities per update:** 0.00 (SingletonBeacon) 0.25 (SMTBeacon), 0.75 (CASBeacon)
 
 **Actual updates by beacon types:** {SingletonBeacon=0, CASBeacon=253, SMTBeacon=121}
 
@@ -63,7 +63,7 @@
 
 ## Updates: Sidecar vs. CAS
 
-**Sidecar/CAS probabilities:** 1.0 (Sidecar), 0.0 (CAS)
+**Sidecar/CAS probabilities:** 1.00 (Sidecar), 0.00 (CAS)
 
 **Sidecar/CAS genesis documents:** 100:0
 

@@ -37,7 +37,7 @@
 
 ## Updates: Beacons, Operations, Sizes
 
-**Beacon type probabilities per update:** 0.25 (SMTBeacon), 0.75 (CASBeacon)
+**Beacon type probabilities per update:** 0.00 (SingletonBeacon) 0.25 (SMTBeacon), 0.75 (CASBeacon)
 
 **Actual updates by beacon types:** {SingletonBeacon=0, CASBeacon=41, SMTBeacon=19}
 
@@ -53,7 +53,7 @@
 
 ## Updates: Sidecar vs. CAS
 
-**Sidecar/CAS probabilities:** 1.0 (Sidecar), 0.0 (CAS)
+**Sidecar/CAS probabilities:** 1.00 (Sidecar), 0.00 (CAS)
 
 **Sidecar/CAS genesis documents:** 25:0
 

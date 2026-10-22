@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 public class AnalyzeAfterCreateAndUpdateAndResolve {
 
-    private static final String PATH = "./data1/";
+    private static final String PATH = "./data3-3/";
     private static final int TOTAL_RESOLUTION_TIME_PER_VERSIONID = 5;
     private static final int TOTAL_RESOLUTION_TIME_PER_CID = 20;
 
@@ -116,7 +116,7 @@ public class AnalyzeAfterCreateAndUpdateAndResolve {
         // versionId,resolutionTime,casAnnouncementCount,smtProofCount,genesisDocumentCidCount,updateCidCount,casAnnouncementCid  by round by DID
 
         Map<Integer, Integer> updateCountPerRound = new LinkedHashMap<>();
-        for (int round=0; round<resolvedResolveResults.size(); round++) updateCountPerRound.put(round, 0);
+        for (int updateRound=1; updateRound<updatedDidsRounds.size()+1; updateRound++) updateCountPerRound.put(updateRound, 0);
 
         Map<String, Integer> updateCountByDid = new LinkedHashMap<>();
         for (String did : createdDids) updateCountByDid.put(did, 0);
@@ -126,7 +126,7 @@ public class AnalyzeAfterCreateAndUpdateAndResolve {
 
         Map<String, Map<Integer, Boolean>> isUpdateByRoundByDid = new LinkedHashMap<>();
         for (String did : createdDids) isUpdateByRoundByDid.put(did, new HashMap<>());
-        for (String did : createdDids) for (int round=1; round<updatedDidsRounds.size()+1; round++) isUpdateByRoundByDid.get(did).put(round, Boolean.FALSE);
+        for (String did : createdDids) for (int updateRound=1; updateRound<updatedDidsRounds.size()+1; updateRound++) isUpdateByRoundByDid.get(did).put(updateRound, Boolean.FALSE);
 
         Map<String, Map<Integer, Integer>> updateCountByRoundByCohort = new LinkedHashMap<>();
         for (String cohort : cohorts) updateCountByRoundByCohort.put(cohort, new HashMap<>());
@@ -157,9 +157,9 @@ public class AnalyzeAfterCreateAndUpdateAndResolve {
 
         for (int resolveRound=0; resolveRound<resolvedResolveResults.size(); resolveRound++) {
 
-            Map<String, Map<String, Object>> resolveResolutionOptions = resolveRound == 0 ? createdResolutionOptions : updatedResolutionOptionsRounds.get(resolveRound-1);
+            Map<String, Map<String, Object>> roundResolutionOptions = resolveRound == 0 ? createdResolutionOptions : updatedResolutionOptionsRounds.get(resolveRound-1);
 
-            for (Map.Entry<String, Map<String, Object>> resolveResolutionOptionsEntry : resolveResolutionOptions.entrySet()) {
+            for (Map.Entry<String, Map<String, Object>> resolveResolutionOptionsEntry : roundResolutionOptions.entrySet()) {
 
                 String did = resolveResolutionOptionsEntry.getKey();
                 Map<String, Object> resolutionOptions = resolveResolutionOptionsEntry.getValue();
@@ -170,11 +170,7 @@ public class AnalyzeAfterCreateAndUpdateAndResolve {
 
                 String lastUpdateHash = ! ((List<Map<String, Object>>) resolveResult.getDidDocumentMetadata().get("updates")).isEmpty() ? (String) ((List<Map<String, Object>>) resolveResult.getDidDocumentMetadata().get("updates")).getLast().get("updateHash") : "";
                 Map<String, Object> beaconSignals = (Map<String, Object>) resolveResult.getDidDocumentMetadata().get("beaconSignals");
-                String cohortAddress = beaconSignals.entrySet().stream().filter(
-                        x -> ((Map<String, Object>) x.getValue()).containsValue(lastUpdateHash))
-                        .map(Map.Entry::getKey)
-                        .findAny()
-                        .orElse(null);
+                String cohortAddress = beaconSignals.entrySet().stream().filter(x -> ((Map<String, Object>) x.getValue()).containsValue(lastUpdateHash)).map(Map.Entry::getKey).findAny().orElse(null);
                 String cohort = cohortAddresses.get(cohortAddress);
 
                 if (resolveRound > 0) updateCountPerRound.computeIfPresent(resolveRound, (k, v) -> v+1);
@@ -195,39 +191,59 @@ public class AnalyzeAfterCreateAndUpdateAndResolve {
             }
         }
 
-        // count updates by beacon types
-        // count updates by update operation
-        // total updates
-        // update sizes
+        // count sidecar and result objects
 
-        Map<String, Map<String, Object>> lastUpdatedResolutionOptions = updatedResolutionOptionsRounds.getLast();
+        Map<String, Map<String, Object>> lastResolutionOptions = updatedResolutionOptionsRounds.getLast();
 
-        List<Map<String, Object>> lastUpdatedResolutionOptionsSidecars = lastUpdatedResolutionOptions.values().stream().map(x -> (Map<String, Object>) x.get("sidecar")).collect(Collectors.toList());
-        List<Map<String, Object>> lastUpdatedResolutionOptionsSidecarGenesisDocuments = new ArrayList<>();
-        List<Map<String, Object>> lastUpdatedResolutionOptionsSidecarUpdates = new ArrayList<>();
-        List<Map<String, Object>> lastUpdatedResolutionOptionsSidecarCasUpdates = new ArrayList<>();
-        List<Map<String, Object>> lastUpdatedResolutionOptionsSidecarSmtProofs = new ArrayList<>();
+        List<Map<String, Object>> lastSidecars = lastResolutionOptions.values().stream().map(x -> (Map<String, Object>) x.get("sidecar")).toList();
+        List<Map<String, Object>> lastSidecarGenesisDocuments = new ArrayList<>();
+        List<Map<String, Object>> lastSidecarUpdates = new ArrayList<>();
+        List<Map<String, Object>> lastSidecarCasUpdates = new ArrayList<>();
+        List<Map<String, Object>> lastSidecarSmtProofs = new ArrayList<>();
 
-        for (Map<String, Object> lastUpdatedResolutionOptionsSidecar : lastUpdatedResolutionOptionsSidecars) {
-            if (lastUpdatedResolutionOptionsSidecar.containsKey("genesisDocument")) lastUpdatedResolutionOptionsSidecarGenesisDocuments.add((Map<String, Object>) lastUpdatedResolutionOptionsSidecar.get("genesisDocument"));
-            if (lastUpdatedResolutionOptionsSidecar.containsKey("updates")) lastUpdatedResolutionOptionsSidecarUpdates.addAll((List<Map<String, Object>>) lastUpdatedResolutionOptionsSidecar.get("updates"));
-            if (lastUpdatedResolutionOptionsSidecar.containsKey("casUpdates")) lastUpdatedResolutionOptionsSidecarCasUpdates.addAll((List<Map<String, Object>>) lastUpdatedResolutionOptionsSidecar.get("casUpdates"));
-            if (lastUpdatedResolutionOptionsSidecar.containsKey("smtProofs")) lastUpdatedResolutionOptionsSidecarSmtProofs.addAll((List<Map<String, Object>>) lastUpdatedResolutionOptionsSidecar.get("smtProofs"));
+        for (Map<String, Object> lastSidecar : lastSidecars) {
+            if (lastSidecar.containsKey("genesisDocument")) lastSidecarGenesisDocuments.add((Map<String, Object>) lastSidecar.get("genesisDocument"));
+            if (lastSidecar.containsKey("updates")) lastSidecarUpdates.addAll((List<Map<String, Object>>) lastSidecar.get("updates"));
+            if (lastSidecar.containsKey("casUpdates")) lastSidecarCasUpdates.addAll((List<Map<String, Object>>) lastSidecar.get("casUpdates"));
+            if (lastSidecar.containsKey("smtProofs")) lastSidecarSmtProofs.addAll((List<Map<String, Object>>) lastSidecar.get("smtProofs"));
         }
 
-        int lastUpdatedResolutionOptionsSidecarGenesisDocumentCount = (int) lastUpdatedResolutionOptionsSidecarGenesisDocuments.stream().count();
-        int lastUpdatedResolutionOptionsSidecarUpdatesCount = (int) lastUpdatedResolutionOptionsSidecarUpdates.stream().distinct().count();
-        int lastUpdatedResolutionOptionsSidecarCasUpdatesCount = lastUpdatedResolutionOptionsSidecarCasUpdates.stream().distinct().map(Map::size).mapToInt(i -> i).sum();
-        int lastUpdatedResolutionOptionsSidecarSmtProofsCount = (int) lastUpdatedResolutionOptionsSidecarSmtProofs.stream().distinct().filter(x -> x.containsKey("updateId")).count();
+        int totalLastSidecarGenesisDocumentCount = lastSidecarGenesisDocuments.size();
+        int totalLastSidecarUpdatesCount = lastSidecarUpdates.size();
+        int totalLastSidecarCasUpdatesCount = lastSidecarCasUpdates.size();
+        int totalLastSidecarSmtProofsCount = lastSidecarSmtProofs.size();
+
+        List<Integer> lastGenesisDocumentCidCounts = genesisDocumentCidCountByRoundByDid.values().stream().map(m -> m.values().stream().mapToInt(i -> i).max().orElse(0)).toList();
+        List<Integer> lastUpdateCidCounts = updateCidCountByRoundByDid.values().stream().map(m -> m.values().stream().mapToInt(i -> i).max().orElse(0)).toList();
+        List<Integer> lastCasAnnouncementCidCounts = casAnnouncementCidCountByRoundByDid.values().stream().map(m -> m.values().stream().mapToInt(i -> i).max().orElse(0)).toList();
+
+        int totalLastGenesisDocumentCidCount = lastGenesisDocumentCidCounts.stream().mapToInt(Integer::intValue).sum();
+        int totalLastUpdateCidCount = lastUpdateCidCounts.stream().mapToInt(Integer::intValue).sum();
+        int totalLastCasAnnouncementCidCount = lastCasAnnouncementCidCounts.stream().mapToInt(Integer::intValue).sum();
+
+        // count updates
+        // update sizes
+
+        int updatesCount = updateCountByDid.values().stream().mapToInt(i -> i).sum();
+
+        List<Integer> updateSizes = new ArrayList<>();
+        lastSidecarUpdates.stream().distinct().forEach(x -> updateSizes.add(toJson(x).length()));
+
+        // count updates by beacon types
+        // count updates by update operation
+
+        int updateCountCas = updateCountByCohort.entrySet().stream().filter(e -> e.getKey().contains("cas")).mapToInt(Map.Entry::getValue).sum();
+        int updateCountSmt = updateCountByCohort.entrySet().stream().filter(e -> e.getKey().contains("smt")).mapToInt(Map.Entry::getValue).sum();
 
         final Map<String, Integer> updatesByBeaconTypes = Map.of(
-                "SingletonBeacon", lastUpdatedResolutionOptionsSidecarUpdatesCount - lastUpdatedResolutionOptionsSidecarCasUpdatesCount - lastUpdatedResolutionOptionsSidecarSmtProofsCount,
-                "CASBeacon", lastUpdatedResolutionOptionsSidecarCasUpdatesCount,
-                "SMTBeacon", lastUpdatedResolutionOptionsSidecarSmtProofsCount);
+                "SingletonBeacon", updatesCount - updateCountCas - updateCountSmt,
+                "CASBeacon", updateCountCas,
+                "SMTBeacon", updateCountSmt
+        );
 
         Map<String, Integer> updateOperations = new HashMap<>();
 
-        for (Map<String, Object> lastUpdatedResolutionOptionsSidecarUpdate : lastUpdatedResolutionOptionsSidecarUpdates) {
+        for (Map<String, Object> lastUpdatedResolutionOptionsSidecarUpdate : lastSidecarUpdates) {
             List<Map<String, Object>> patches = (List<Map<String, Object>>) lastUpdatedResolutionOptionsSidecarUpdate.get("patch");
             Set<String> patchOps = new HashSet<>();
             for (Map<String, Object> patch : patches) patchOps.add((String) patch.get("op"));
@@ -237,11 +253,6 @@ public class AnalyzeAfterCreateAndUpdateAndResolve {
             }
         }
 
-        int totalUpdates = updateCountByDid.values().stream().mapToInt(i -> i).sum();
-
-        List<Integer> updateSizes = new ArrayList<>();
-        lastUpdatedResolutionOptionsSidecarUpdates.stream().distinct().forEach(x -> updateSizes.add(toJson(x).length()));
-
         // output
 
         System.out.println("Number of DIDs: " + didsCount);
@@ -250,7 +261,7 @@ public class AnalyzeAfterCreateAndUpdateAndResolve {
         System.out.println("Total beacon services: " + beaconServicesByTypeCounts);
         System.out.println("Total aggregation cohort types and sizes: " + cohortTypesAndSizes);
         System.out.println("Update probabilities per round per DID: " + "---");
-        System.out.println("Actual update count: " + totalUpdates);
+        System.out.println("Actual update count: " + updatesCount);
         System.out.println("Actual update counts per round: " + updateCountPerRound.values().stream().map(x -> Integer.toString(x)).collect(Collectors.joining(",")));
         System.out.println("Beacon type probabilities per update: " + "---");
         System.out.println("Actual updates by beacon types: " + updatesByBeaconTypes);
@@ -265,6 +276,7 @@ public class AnalyzeAfterCreateAndUpdateAndResolve {
             System.out.println(String.format("%-35s", cohort) + " -> " + updateCountByRoundByCohort.get(cohort).values().stream().map(i -> Integer.toString(i)).collect(Collectors.joining(" ")) + " (" + updateCountByCohort.get(cohort) + ")");
         }
         System.out.println("Resolution times per round per DID: ");
+        System.out.println("versionId, totalResolutionTime, resolutionTime, casAnnouncementCount, smtProofCount, genesisDocumentCidCount, updateCidCount, casAnnouncementCidCount");
         for (String createdDid : createdDids) {
             for (int round : new TreeSet<>(versionIdByRoundByDid.get(createdDid).keySet())) {
                 int totalResolutionTIme =
@@ -288,13 +300,10 @@ public class AnalyzeAfterCreateAndUpdateAndResolve {
                         "," + casAnnouncementCidCountByRoundByDid.get(createdDid).get(round));
             }
         }
-        System.out.println("IPFS genesis DID documents: " + genesisDocumentCidCountByRoundByDid.values().stream().map(m -> m.values().stream().mapToInt(i -> i).max().orElse(0)).mapToInt(i -> i).sum() + "/" + createdDids.size());
-        System.out.println("IPFS updates: " + updateCidCountByRoundByDid.values().stream().map(m -> m.values().stream().mapToInt(i -> i).max().orElse(0)).mapToInt(i -> i).sum() + "/" + totalUpdates);
-        System.out.println("IPFS CAS announcements: " + casAnnouncementCidCountByRoundByDid.values().stream().map(m -> m.values().stream().mapToInt(i -> i).max().orElse(0)).mapToInt(i -> i).sum() + "/" + casAnnouncementCountByRoundByDid.values().stream().map(m -> m.values().stream().mapToInt(i -> i).max().orElse(0)).mapToInt(i -> i).sum());
-        System.out.println("Sidecar genesis DID documents: " + lastUpdatedResolutionOptionsSidecarGenesisDocumentCount + "/" + createdDids.size());
-        System.out.println("Sidecar updates: " + lastUpdatedResolutionOptionsSidecarUpdatesCount + "/" + totalUpdates);
-        System.out.println("Sidecar CAS announcements: " + lastUpdatedResolutionOptionsSidecarCasUpdatesCount + "/" + casAnnouncementCountByRoundByDid.values().stream().map(m -> m.values().stream().mapToInt(i -> i).max().orElse(0)).mapToInt(i -> i).sum());
-        System.out.println("Sidecar SMT proofs: " + lastUpdatedResolutionOptionsSidecarSmtProofsCount + "/" + smtProofCountByRoundByDid.values().stream().map(m -> m.values().stream().mapToInt(i -> i).max().orElse(0)).mapToInt(i -> i).sum());
+        System.out.println("Sidecar/CAS genesis documents: " + totalLastSidecarGenesisDocumentCount + ":" + totalLastGenesisDocumentCidCount);
+        System.out.println("Sidecar/CAS updates: " + totalLastSidecarUpdatesCount + ":" + totalLastUpdateCidCount);
+        System.out.println("Sidecar/CAS CAS announcements: " + totalLastSidecarCasUpdatesCount + ":" + totalLastCasAnnouncementCidCount);
+        System.out.println("Sidecar SMT proofs: " + totalLastSidecarSmtProofsCount);
     }
 
     private static void readCreateOut(String path, List<String> createdDids, Map<String, Map<String, Object>> createdResolutionOptions) throws IOException {

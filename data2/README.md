@@ -205,7 +205,9 @@ cohort-mutinynet-smt-12*691463090   -> 0 2 2 0 4 0 0 0 0 0 0 3 4 0 0 (15)
 cohort-mutinynet-smt-13*733018335   -> 0 2 5 0 5 0 0 0 0 0 0 2 1 0 0 (15)
 ```
 
-**Resolution times:**
+## Resolution Times
+
+![Analysis - Resolution times](Analysis-ResolutionTimes.png)
 
 versionId, totalResolutionTime, resolutionTime, casAnnouncementCount, smtProofCount, genesisDocumentCidCount, updateCidCount, casAnnouncementCidCount
 
